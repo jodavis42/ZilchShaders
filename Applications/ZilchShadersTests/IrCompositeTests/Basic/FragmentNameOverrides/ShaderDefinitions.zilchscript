@@ -1,0 +1,19 @@
+class ShaderDefinitions
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    config.TestComposites = true;
+    
+    var vertexShader = shaders.AddShader();
+    vertexShader.ShaderName = "VertexTest";
+    vertexShader.Fragments.Add("Vertex1");
+    vertexShader.Fragments.Add("Vertex2");
+    vertexShader.Fragments.Add("Vertex3");
+    
+    var pixelShader = shaders.AddShader();
+    pixelShader.ShaderName = "PixelTest";
+    pixelShader.Fragments.Add("Pixel1");
+    pixelShader.Fragments.Add("Pixel2");
+    pixelShader.Fragments.Add("Pixel3");
+  }
+}

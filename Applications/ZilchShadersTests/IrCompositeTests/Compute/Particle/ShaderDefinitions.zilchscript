@@ -1,0 +1,14 @@
+class ShaderDefinitions
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    config.TestComposites = true;
+    
+    var shader1 = shaders.AddShader();
+    shader1.ShaderName = "ComputeParticles";
+    shader1.Fragments.Add("ParticleReader");
+    shader1.Fragments.Add("ParticleForces");
+    shader1.Fragments.Add("ParticleIntegration");
+    shader1.Fragments.Add("ParticleWriter");
+  }
+}

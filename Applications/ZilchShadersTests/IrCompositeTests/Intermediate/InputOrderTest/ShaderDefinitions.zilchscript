@@ -1,0 +1,14 @@
+class ShaderDefinitions
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    config.TestComposites = true;
+    
+    var shader1 = shaders.AddShader();
+    shader1.ShaderName = "OrderTest";
+    shader1.Fragments.Add("Vertex1");
+    shader1.Fragments.Add("Vertex2");
+    shader1.Fragments.Add("Pixel1");
+    shader1.Fragments.Add("Pixel2");
+  }
+}

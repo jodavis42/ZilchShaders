@@ -1,0 +1,19 @@
+class ShaderDefinitions
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    config.TestComposites = true;
+    
+    var shader1 = shaders.AddShader();
+    shader1.ShaderName = "BasicSpecConstants";
+    shader1.Fragments.Add("Vertex");
+    shader1.Fragments.Add("Geometry");
+    shader1.Fragments.Add("Pixel");
+    
+    var shader2 = shaders.AddShader();
+    shader2.ShaderName = "NameOverrideSpecConstants";
+    shader2.Fragments.Add("VertexOverride");
+    shader2.Fragments.Add("GeometryOverride");
+    shader2.Fragments.Add("PixelOverride");
+  }
+}

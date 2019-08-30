@@ -1,0 +1,7 @@
+class ErrorSettings
+{
+  function Main(config : ZilchShaderTestConfiguration, errorSettings : ZilchShaderTestErrorSettings)
+  {
+    errorSettings.ErrorOnNoMain = true;
+  }
+}

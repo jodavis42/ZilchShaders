@@ -1,0 +1,10 @@
+class ShaderDefinitions
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    config.TestComposites = true;
+    
+    var shader1 = shaders.AddShader();
+    shader1.Fragments.Add("Vertex");
+  }
+}

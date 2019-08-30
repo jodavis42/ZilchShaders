@@ -1,0 +1,13 @@
+class ShaderDefinitions
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    config.TestComposites = true;
+    
+    var pixelShader = shaders.AddShader();
+    pixelShader.ShaderName = "PixelTest";
+    pixelShader.Fragments.Add("Pixel1");
+    pixelShader.Fragments.Add("Pixel2");
+    pixelShader.Fragments.Add("Pixel3");
+  }
+}

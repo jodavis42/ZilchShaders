@@ -1,0 +1,9 @@
+class ShaderDefinitions
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.Fragments.Add("Geometry1");
+    shader.Fragments.Add("Geometry2");
+  }
+}

@@ -1,0 +1,20 @@
+target_sources(Memory
+  PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/Precompiled.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Precompiled.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/AllocationContainer.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/Allocator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Allocator.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/GraphNode.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/GraphNode.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/Heap.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Heap.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/LocalStackAllocator.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/Memory.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Memory.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/Root.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Root.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/Stats.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/TypedAllocator.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/ZeroAllocator.hpp
+)

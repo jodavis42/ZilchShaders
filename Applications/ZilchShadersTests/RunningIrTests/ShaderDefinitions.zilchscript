@@ -1,0 +1,307 @@
+class Real4x4MemberAccessTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "Real4x4MemberAccessTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("Real4x4MemberAccessTest");
+  }
+}
+
+class Real4x4RowAccessTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "Real4x4RowAccessTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("Real4x4RowAccessTest");
+  }
+}
+
+class Real4x4DoubleBracketAcessTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "Real4x4DoubleBracketAcessTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("Real4x4DoubleBracketAcessTest");
+  }
+}
+
+class Real4x4MultiplyTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "Real4x4MultiplyTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("Real4x4MultiplyTests");
+  }
+}
+
+class Real4x4MatrixMultiplyTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "Real4x4MatrixMultiplyTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("Real4x4MatrixMultiplyTests");
+  }
+}
+
+class Real4x4MultiplyPointTests
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "Real4x4MultiplyPointTests";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("Real4x4MultiplyPointTests");
+  }
+}
+
+class Real4x4MultiplyNormalTests
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "Real4x4MultiplyNormalTests";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("Real4x4MultiplyNormalTests");
+  }
+}
+
+class Real4x4TransposeTests
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "Real4x4TransposeTests";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("Real4x4TransposeTests");
+  }
+}
+
+class GenerateScaleMatrix2x2Test
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateScaleMatrix2x2Test";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateScaleMatrix2x2Test");
+  }
+}
+
+class GenerateScaleMatrix3x3Test_0
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateScaleMatrix3x3Test_0";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateScaleMatrix3x3Test_0");
+  }
+}
+
+class GenerateScaleMatrix3x3Test_1
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateScaleMatrix3x3Test_1";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateScaleMatrix3x3Test_1");
+  }
+}
+
+class GenerateScaleMatrix4x4Test
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateScaleMatrix4x4Test";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateScaleMatrix4x4Test");
+  }
+}
+
+class GenerateRotationMatrix2x2Test
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateRotationMatrix2x2Test";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateRotationMatrix2x2Test");
+  }
+}
+
+class GenerateRotationMatrix3x3Test_0
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateRotationMatrix3x3Test_0";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateRotationMatrix3x3Test_0");
+  }
+}
+
+class GenerateRotationMatrix3x3Test_1
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateRotationMatrix3x3Test_1";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateRotationMatrix3x3Test_1");
+  }
+}
+
+class GenerateRotationMatrix4x4Test
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateRotationMatrix4x4Test";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateRotationMatrix4x4Test");
+  }
+}
+
+class GenerateTranslationMatrix3x3Test
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateTranslationMatrix3x3Test";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateTranslationMatrix3x3Test");
+  }
+}
+
+class GenerateTranslationMatrix4x4Test
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateTranslationMatrix4x4Test";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateTranslationMatrix4x4Test");
+  }
+}
+
+class GenerateTransformMatrix3x3Test_0
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateTransformMatrix3x3Test_0";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateTransformMatrix3x3Test_0");
+  }
+}
+
+class GenerateTransformMatrix3x3Test_1
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateTransformMatrix3x3Test_1";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateTransformMatrix3x3Test_1");
+  }
+}
+
+class GenerateTransformMatrix4x4Test
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "GenerateTransformMatrix4x4Test";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("GenerateTransformMatrix4x4Test");
+  }
+}
+
+class SlerpQuaternionTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "SlerpQuaternionTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("SlerpQuaternionTest");
+  }
+}
+
+class InvertQuaternionTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "InvertQuaternionTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("SlerpQuaternionTest");
+  }
+}
+
+class MultiplyQuaternionTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "MultiplyQuaternionTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("MultiplyQuaternionTest");
+  }
+}
+
+class MultiplyQuaternionVectorTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "MultiplyQuaternionVectorTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("MultiplyQuaternionVectorTest");
+  }
+}
+
+class AxisAngleToQuaternionTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "AxisAngleToQuaternionTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("AxisAngleToQuaternionTest");
+  }
+}
+
+class Matrix3ToQuaternionTest
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "Matrix3ToQuaternionTest";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("Matrix3ToQuaternionTest");
+  }
+}
+
+class FracTests
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    var shader = shaders.AddShader();
+    shader.ShaderName = "FracTests";
+    shader.Fragments.Add("BasicVertexFrag");
+    shader.Fragments.Add("FracTests");
+  }
+}

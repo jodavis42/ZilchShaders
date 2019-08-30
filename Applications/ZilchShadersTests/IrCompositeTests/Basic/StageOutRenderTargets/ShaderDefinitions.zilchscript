@@ -1,0 +1,15 @@
+class ShaderDefinitions
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    config.TestComposites = true;
+    
+    var shader1 = shaders.AddShader();
+    shader1.ShaderName = "Basic";
+    shader1.Fragments.Add("PixelBasic");
+    
+    var shader2 = shaders.AddShader();
+    shader2.ShaderName = "MultipleOutput";
+    shader2.Fragments.Add("PixelMultipleOutput");
+  }
+}

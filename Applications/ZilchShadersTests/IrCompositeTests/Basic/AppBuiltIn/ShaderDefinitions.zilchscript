@@ -1,0 +1,15 @@
+class ShaderDefinitions
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    config.TestComposites = true;
+    
+    var shader = shaders.AddShader();
+    shader.ShaderName = "AppBuiltIns";
+    
+    var fragments = shader.Fragments;
+    fragments.Add("Vertex");
+    fragments.Add("Geometry");
+    fragments.Add("Pixel");
+  }
+}

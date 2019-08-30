@@ -1,0 +1,17 @@
+class ShaderDefinitions
+{
+  function Main(config : ZilchShaderTestConfiguration, shaders : ZilchShaderCollection)
+  {
+    config.TestComposites = true;
+    
+    var shader1 = shaders.AddShader();
+    shader1.ShaderName = "HardwareBuiltIn1";
+    shader1.Fragments.Add("Vertex");
+    shader1.Fragments.Add("Geometry");
+    shader1.Fragments.Add("Pixel1");
+    
+    var shader2 = shaders.AddShader();
+    shader2.ShaderName = "HardwareBuiltIn2";
+    shader2.Fragments.Add("Pixel2");
+  }
+}

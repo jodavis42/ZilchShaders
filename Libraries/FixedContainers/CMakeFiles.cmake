@@ -1,0 +1,9 @@
+target_sources(FixedContainers
+  PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/Precompiled.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Precompiled.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/FixedArray.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/FixedString.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/InList.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/PointerRange.hpp
+)
