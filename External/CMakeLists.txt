@@ -9,3 +9,7 @@ target_include_directories(Glew32 INTERFACE ${CurrentDirectory} ${CurrentDirecto
 add_library(OpenGL STATIC IMPORTED GLOBAL)
 set_target_properties(OpenGL PROPERTIES IMPORTED_LOCATION ${CurrentDirectory}/GL/lib/Windows/x86/OpenGL32.lib)
 target_include_directories(OpenGL INTERFACE ${CurrentDirectory} ${CurrentDirectory}/GL/include)
+
+add_library(GLU STATIC IMPORTED GLOBAL)
+set_target_properties(GLU PROPERTIES IMPORTED_LOCATION ${CurrentDirectory}/GL/lib/Windows/x86/GlU32.lib)
+target_include_directories(GLU INTERFACE ${CurrentDirectory} ${CurrentDirectory}/GL/include)

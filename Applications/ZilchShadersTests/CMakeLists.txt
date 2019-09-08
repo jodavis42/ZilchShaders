@@ -17,6 +17,7 @@ target_link_libraries(ZilchShadersTests
                       PUBLIC
                       ZilchShaders
                       OpenGL
+                      GLU
                       Glew32
 )
 
