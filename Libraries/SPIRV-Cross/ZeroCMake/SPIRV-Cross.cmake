@@ -6,6 +6,7 @@ target_sources(SPIRV-Cross
   PRIVATE
     ${SPIRV-Cross-Dir}/spirv_cfg.cpp
     ${SPIRV-Cross-Dir}/spirv_cpp.cpp
+    ${SPIRV-Cross-Dir}/spirv_cross_c.cpp
     ${SPIRV-Cross-Dir}/spirv_cross.cpp
     ${SPIRV-Cross-Dir}/spirv_cross_parsed_ir.cpp
     ${SPIRV-Cross-Dir}/spirv_cross_util.cpp
@@ -15,11 +16,15 @@ target_sources(SPIRV-Cross
     ${SPIRV-Cross-Dir}/spirv_parser.cpp
     ${SPIRV-Cross-Dir}/spirv_reflect.cpp
     ${SPIRV-Cross-Dir}/GLSL.std.450.h
+    ${SPIRV-Cross-Dir}/spirv.h
     ${SPIRV-Cross-Dir}/spirv.hpp
     ${SPIRV-Cross-Dir}/spirv_cfg.hpp
     ${SPIRV-Cross-Dir}/spirv_common.hpp
     ${SPIRV-Cross-Dir}/spirv_cpp.hpp
+    ${SPIRV-Cross-Dir}/spirv_cross_c.h
     ${SPIRV-Cross-Dir}/spirv_cross.hpp
+    ${SPIRV-Cross-Dir}/spirv_cross_containers.hpp
+    ${SPIRV-Cross-Dir}/spirv_cross_error_handling.hpp
     ${SPIRV-Cross-Dir}/spirv_cross_parsed_ir.hpp
     ${SPIRV-Cross-Dir}/spirv_cross_util.hpp
     ${SPIRV-Cross-Dir}/spirv_glsl.hpp
