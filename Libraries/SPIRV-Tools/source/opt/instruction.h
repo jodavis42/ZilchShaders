@@ -398,8 +398,13 @@ class Instruction : public utils::IntrusiveNodeBase<Instruction> {
   inline bool operator!=(const Instruction&) const;
   inline bool operator<(const Instruction&) const;
 
-  Instruction* InsertBefore(std::vector<std::unique_ptr<Instruction>>&& list);
+  // Takes ownership of the instruction owned by |i| and inserts it immediately
+  // before |this|. Returns the inserted instruction.
   Instruction* InsertBefore(std::unique_ptr<Instruction>&& i);
+  // Takes ownership of the instructions in |list| and inserts them in order
+  // immediately before |this|.  Returns the first inserted instruction.
+  // Assumes the list is non-empty.
+  Instruction* InsertBefore(std::vector<std::unique_ptr<Instruction>>&& list);
   using utils::IntrusiveNodeBase<Instruction>::InsertBefore;
 
   // Returns true if |this| is an instruction defining a constant, but not a
@@ -618,15 +623,8 @@ inline void Instruction::ForEachId(
 inline bool Instruction::WhileEachInId(
     const std::function<bool(uint32_t*)>& f) {
   for (auto& opnd : operands_) {
-    switch (opnd.type) {
-      case SPV_OPERAND_TYPE_RESULT_ID:
-      case SPV_OPERAND_TYPE_TYPE_ID:
-        break;
-      default:
-        if (spvIsIdType(opnd.type)) {
-          if (!f(&opnd.words[0])) return false;
-        }
-        break;
+    if (spvIsInIdType(opnd.type)) {
+      if (!f(&opnd.words[0])) return false;
     }
   }
   return true;
@@ -635,15 +633,8 @@ inline bool Instruction::WhileEachInId(
 inline bool Instruction::WhileEachInId(
     const std::function<bool(const uint32_t*)>& f) const {
   for (const auto& opnd : operands_) {
-    switch (opnd.type) {
-      case SPV_OPERAND_TYPE_RESULT_ID:
-      case SPV_OPERAND_TYPE_TYPE_ID:
-        break;
-      default:
-        if (spvIsIdType(opnd.type)) {
-          if (!f(&opnd.words[0])) return false;
-        }
-        break;
+    if (spvIsInIdType(opnd.type)) {
+      if (!f(&opnd.words[0])) return false;
     }
   }
   return true;

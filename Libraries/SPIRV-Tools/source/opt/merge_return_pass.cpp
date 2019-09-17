@@ -36,7 +36,13 @@ Pass::Status MergeReturnPass::Process() {
   ProcessFunction pfn = [&failed, is_shader, this](Function* function) {
     std::vector<BasicBlock*> return_blocks = CollectReturnBlocks(function);
     if (return_blocks.size() <= 1) {
-      return false;
+      if (!is_shader || return_blocks.size() == 0) {
+        return false;
+      }
+      if (context()->GetStructuredCFGAnalysis()->ContainingConstruct(
+              return_blocks[0]->id()) == 0) {
+        return false;
+      }
     }
 
     function_ = function;
@@ -54,7 +60,7 @@ Pass::Status MergeReturnPass::Process() {
     return true;
   };
 
-  bool modified = ProcessReachableCallTree(pfn, context());
+  bool modified = context()->ProcessReachableCallTree(pfn);
 
   if (failed) {
     return Status::Failure;
@@ -75,6 +81,7 @@ bool MergeReturnPass::ProcessStructured(
     return false;
   }
 
+  RecordImmediateDominators(function);
   AddDummyLoopAroundFunction();
 
   std::list<BasicBlock*> order;
@@ -121,7 +128,9 @@ bool MergeReturnPass::ProcessStructured(
     // Predicate successors of the original return blocks as necessary.
     if (std::find(return_blocks.begin(), return_blocks.end(), block) !=
         return_blocks.end()) {
-      PredicateBlocks(block, &predicated, &order);
+      if (!PredicateBlocks(block, &predicated, &order)) {
+        return false;
+      }
     }
 
     // Generate state for next block
@@ -195,6 +204,7 @@ void MergeReturnPass::ProcessStructuredBlock(BasicBlock* block) {
       tail_opcode == SpvOpUnreachable) {
     assert(CurrentState().InLoop() && "Should be in the dummy loop.");
     BranchToBlock(block, CurrentState().LoopMergeId());
+    return_blocks_.insert(block->id());
   }
 }
 
@@ -204,13 +214,18 @@ void MergeReturnPass::BranchToBlock(BasicBlock* block, uint32_t target) {
     RecordReturned(block);
     RecordReturnValue(block);
   }
+
   BasicBlock* target_block = context()->get_instr_block(target);
+  if (target_block->GetLoopMergeInst()) {
+    cfg()->SplitLoopHeader(target_block);
+  }
   UpdatePhiNodes(block, target_block);
 
   Instruction* return_inst = block->terminator();
   return_inst->SetOpcode(SpvOpBranch);
   return_inst->ReplaceOperands({{SPV_OPERAND_TYPE_ID, {target}}});
   context()->get_def_use_mgr()->AnalyzeInstDefUse(return_inst);
+  new_edges_[target_block].insert(block->id());
   cfg()->AddEdge(block->id(), target);
 }
 
@@ -222,25 +237,33 @@ void MergeReturnPass::UpdatePhiNodes(BasicBlock* new_source,
     inst->AddOperand({SPV_OPERAND_TYPE_ID, {new_source->id()}});
     context()->UpdateDefUse(inst);
   });
-
-  const auto& target_pred = cfg()->preds(target->id());
-  if (target_pred.size() == 1) {
-    MarkForNewPhiNodes(target, context()->get_instr_block(target_pred[0]));
-  }
 }
 
 void MergeReturnPass::CreatePhiNodesForInst(BasicBlock* merge_block,
-                                            uint32_t predecessor,
                                             Instruction& inst) {
   DominatorAnalysis* dom_tree =
       context()->GetDominatorAnalysis(merge_block->GetParent());
-  BasicBlock* inst_bb = context()->get_instr_block(&inst);
 
   if (inst.result_id() != 0) {
+    BasicBlock* inst_bb = context()->get_instr_block(&inst);
     std::vector<Instruction*> users_to_update;
     context()->get_def_use_mgr()->ForEachUser(
-        &inst, [&users_to_update, &dom_tree, inst_bb, this](Instruction* user) {
-          BasicBlock* user_bb = context()->get_instr_block(user);
+        &inst,
+        [&users_to_update, &dom_tree, &inst, inst_bb, this](Instruction* user) {
+          BasicBlock* user_bb = nullptr;
+          if (user->opcode() != SpvOpPhi) {
+            user_bb = context()->get_instr_block(user);
+          } else {
+            // For OpPhi, the use should be considered to be in the predecessor.
+            for (uint32_t i = 0; i < user->NumInOperands(); i += 2) {
+              if (user->GetSingleWordInOperand(i) == inst.result_id()) {
+                uint32_t user_bb_id = user->GetSingleWordInOperand(i + 1);
+                user_bb = context()->get_instr_block(user_bb_id);
+                break;
+              }
+            }
+          }
+
           // If |user_bb| is nullptr, then |user| is not in the function.  It is
           // something like an OpName or decoration, which should not be
           // replaced with the result of the OpPhi.
@@ -255,22 +278,23 @@ void MergeReturnPass::CreatePhiNodesForInst(BasicBlock* merge_block,
 
     // There is at least one values that needs to be replaced.
     // First create the OpPhi instruction.
-    InstructionBuilder builder(context(), &*merge_block->begin(),
-                               IRContext::kAnalysisDefUse);
+    InstructionBuilder builder(
+        context(), &*merge_block->begin(),
+        IRContext::kAnalysisDefUse | IRContext::kAnalysisInstrToBlockMapping);
     uint32_t undef_id = Type2Undef(inst.type_id());
     std::vector<uint32_t> phi_operands;
+    const std::set<uint32_t>& new_edges = new_edges_[merge_block];
 
-    // Add the operands for the defining instructions.
-    phi_operands.push_back(inst.result_id());
-    phi_operands.push_back(predecessor);
-
-    // Add undef from all other blocks.
+    // Add the OpPhi operands. If the predecessor is a return block use undef,
+    // otherwise use |inst|'s id.
     std::vector<uint32_t> preds = cfg()->preds(merge_block->id());
     for (uint32_t pred_id : preds) {
-      if (pred_id != predecessor) {
+      if (new_edges.count(pred_id)) {
         phi_operands.push_back(undef_id);
-        phi_operands.push_back(pred_id);
+      } else {
+        phi_operands.push_back(inst.result_id());
       }
+      phi_operands.push_back(pred_id);
     }
 
     Instruction* new_phi = builder.AddPhi(inst.type_id(), phi_operands);
@@ -288,14 +312,14 @@ void MergeReturnPass::CreatePhiNodesForInst(BasicBlock* merge_block,
   }
 }
 
-void MergeReturnPass::PredicateBlocks(
+bool MergeReturnPass::PredicateBlocks(
     BasicBlock* return_block, std::unordered_set<BasicBlock*>* predicated,
     std::list<BasicBlock*>* order) {
   // The CFG is being modified as the function proceeds so avoid caching
   // successors.
 
   if (predicated->count(return_block)) {
-    return;
+    return true;
   }
 
   BasicBlock* block = nullptr;
@@ -322,22 +346,28 @@ void MergeReturnPass::PredicateBlocks(
   while (block != nullptr && block != final_return_block_) {
     if (!predicated->insert(block).second) break;
     // Skip structured subgraphs.
-    BasicBlock* next = nullptr;
     assert(state->InLoop() && "Should be in the dummy loop at the very least.");
-    next = context()->get_instr_block(state->LoopMergeId());
-    while (state->LoopMergeId() == next->id()) {
+    Instruction* current_loop_merge_inst = state->LoopMergeInst();
+    uint32_t merge_block_id =
+        current_loop_merge_inst->GetSingleWordInOperand(0);
+    while (state->LoopMergeId() == merge_block_id) {
       state++;
     }
-    BreakFromConstruct(block, next, predicated, order);
-    block = next;
+    if (!BreakFromConstruct(block, predicated, order,
+                            current_loop_merge_inst)) {
+      return false;
+    }
+    block = context()->get_instr_block(merge_block_id);
   }
+  return true;
 }
 
-void MergeReturnPass::BreakFromConstruct(
-    BasicBlock* block, BasicBlock* merge_block,
-    std::unordered_set<BasicBlock*>* predicated,
-    std::list<BasicBlock*>* order) {
-  // Make sure the cfg is build here.  If we don't then it becomes very hard
+bool MergeReturnPass::BreakFromConstruct(
+    BasicBlock* block, std::unordered_set<BasicBlock*>* predicated,
+    std::list<BasicBlock*>* order, Instruction* loop_merge_inst) {
+  assert(loop_merge_inst->opcode() == SpvOpLoopMerge &&
+         "loop_merge_inst must be a loop merge instruction.");
+  // Make sure the CFG is build here.  If we don't then it becomes very hard
   // to know which new blocks need to be updated.
   context()->BuildInvalidAnalyses(IRContext::kAnalysisCFG);
 
@@ -353,7 +383,15 @@ void MergeReturnPass::BreakFromConstruct(
   // If |block| is a loop header, then the back edge must jump to the original
   // code, not the new header.
   if (block->GetLoopMergeInst()) {
-    cfg()->SplitLoopHeader(block);
+    if (cfg()->SplitLoopHeader(block) == nullptr) {
+      return false;
+    }
+  }
+
+  uint32_t merge_block_id = loop_merge_inst->GetSingleWordInOperand(0);
+  BasicBlock* merge_block = context()->get_instr_block(merge_block_id);
+  if (merge_block->GetLoopMergeInst()) {
+    cfg()->SplitLoopHeader(merge_block);
   }
 
   // Leave the phi instructions behind.
@@ -365,8 +403,23 @@ void MergeReturnPass::BreakFromConstruct(
   // Forget about the edges leaving block.  They will be removed.
   cfg()->RemoveSuccessorEdges(block);
 
-  BasicBlock* old_body = block->SplitBasicBlock(context(), TakeNextId(), iter);
+  auto old_body_id = TakeNextId();
+  BasicBlock* old_body = block->SplitBasicBlock(context(), old_body_id, iter);
   predicated->insert(old_body);
+  cfg()->AddEdges(old_body);
+
+  // If a return block is being split, mark the new body block also as a return
+  // block.
+  if (return_blocks_.count(block->id())) {
+    return_blocks_.insert(old_body_id);
+  }
+
+  // If |block| was a continue target for a loop |old_body| is now the correct
+  // continue target.
+  if (loop_merge_inst->GetSingleWordInOperand(1) == block->id()) {
+    loop_merge_inst->SetInOperand(1, {old_body->id()});
+    context()->UpdateDefUse(loop_merge_inst);
+  }
 
   // Update |order| so old_block will be traversed.
   InsertAfterElement(block, old_body, order);
@@ -375,6 +428,7 @@ void MergeReturnPass::BreakFromConstruct(
   // 1. Load of the return status flag
   // 2. Branch to |merge_block| (true) or old body (false)
   // 3. Update OpPhi instructions in |merge_block|.
+  // 4. Update the CFG.
   //
   // Sine we are branching to the merge block of the current construct, there is
   // no need for an OpSelectionMerge.
@@ -393,20 +447,24 @@ void MergeReturnPass::BreakFromConstruct(
   builder.AddConditionalBranch(load_id, merge_block->id(), old_body->id(),
                                old_body->id());
 
-  // Update the cfg
+  if (!new_edges_[merge_block].insert(block->id()).second) {
+    // It is possible that we already inserted a new edge to the merge block.
+    // If so, that edge now goes from |old_body| to |merge_block|.
+    new_edges_[merge_block].insert(old_body->id());
+  }
+
+  // 3. Update OpPhi instructions in |merge_block|.
+  UpdatePhiNodes(block, merge_block);
+
+  // 4. Update the CFG.  We do this after updating the OpPhi instructions
+  // because |UpdatePhiNodes| assumes the edge from |block| has not been added
+  // to the CFG yet.
   cfg()->AddEdges(block);
   cfg()->RegisterBlock(old_body);
 
-  // 3. Update OpPhi instructions in |merge_block|.
-  BasicBlock* merge_original_pred = MarkedSinglePred(merge_block);
-  if (merge_original_pred == nullptr) {
-    UpdatePhiNodes(block, merge_block);
-  } else if (merge_original_pred == block) {
-    MarkForNewPhiNodes(merge_block, old_body);
-  }
-
   assert(old_body->begin() != old_body->end());
   assert(block->begin() != block->end());
+  return true;
 }
 
 void MergeReturnPass::RecordReturned(BasicBlock* block) {
@@ -593,36 +651,54 @@ void MergeReturnPass::MergeReturnBlocks(
 }
 
 void MergeReturnPass::AddNewPhiNodes() {
-  DominatorAnalysis* dom_tree = context()->GetDominatorAnalysis(function_);
   std::list<BasicBlock*> order;
   cfg()->ComputeStructuredOrder(function_, &*function_->begin(), &order);
 
   for (BasicBlock* bb : order) {
-    BasicBlock* dominator = dom_tree->ImmediateDominator(bb);
-    if (dominator) {
-      AddNewPhiNodes(bb, new_merge_nodes_[bb], dominator->id());
-    }
+    AddNewPhiNodes(bb);
   }
 }
 
-void MergeReturnPass::AddNewPhiNodes(BasicBlock* bb, BasicBlock* pred,
-                                     uint32_t header_id) {
-  DominatorAnalysis* dom_tree = context()->GetDominatorAnalysis(function_);
-  // Insert as a stopping point.  We do not have to add anything in the block
-  // or above because the header dominates |bb|.
+void MergeReturnPass::AddNewPhiNodes(BasicBlock* bb) {
+  // New phi nodes are needed for any id whose definition used to dominate |bb|,
+  // but no longer dominates |bb|.  These are found by walking the dominator
+  // tree starting at the original immediate dominator of |bb| and ending at its
+  // current dominator.
 
-  BasicBlock* current_bb = pred;
-  while (current_bb != nullptr && current_bb->id() != header_id) {
+  // Because we are walking the updated dominator tree it is important that the
+  // new phi nodes for the original dominators of |bb| have already been added.
+  // Otherwise some ids might be missed.  Consider the case where bb1 dominates
+  // bb2, and bb2 dominates bb3.  Suppose there are changes such that bb1 no
+  // longer dominates bb2 and the same for bb2 and bb3.  This algorithm will not
+  // look at the ids defined in bb1.  However, calling |AddNewPhiNodes(bb2)|
+  // first will add a phi node in bb2 for that value.  Then a call to
+  // |AddNewPhiNodes(bb3)| will process that value by processing the phi in bb2.
+  DominatorAnalysis* dom_tree = context()->GetDominatorAnalysis(function_);
+
+  BasicBlock* dominator = dom_tree->ImmediateDominator(bb);
+  if (dominator == nullptr) {
+    return;
+  }
+
+  BasicBlock* current_bb = context()->get_instr_block(original_dominator_[bb]);
+  while (current_bb != nullptr && current_bb != dominator) {
     for (Instruction& inst : *current_bb) {
-      CreatePhiNodesForInst(bb, pred->id(), inst);
+      CreatePhiNodesForInst(bb, inst);
     }
     current_bb = dom_tree->ImmediateDominator(current_bb);
   }
 }
 
-void MergeReturnPass::MarkForNewPhiNodes(BasicBlock* block,
-                                         BasicBlock* single_original_pred) {
-  new_merge_nodes_[block] = single_original_pred;
+void MergeReturnPass::RecordImmediateDominators(Function* function) {
+  DominatorAnalysis* dom_tree = context()->GetDominatorAnalysis(function);
+  for (BasicBlock& bb : *function) {
+    BasicBlock* dominator_bb = dom_tree->ImmediateDominator(&bb);
+    if (dominator_bb && dominator_bb != cfg()->pseudo_entry_block()) {
+      original_dominator_[&bb] = dominator_bb->terminator();
+    } else {
+      original_dominator_[&bb] = nullptr;
+    }
+  }
 }
 
 void MergeReturnPass::InsertAfterElement(BasicBlock* element,
@@ -744,12 +820,7 @@ bool MergeReturnPass::HasNontrivialUnreachableBlocks(Function* function) {
 
     StructuredCFGAnalysis* struct_cfg_analysis =
         context()->GetStructuredCFGAnalysis();
-    if (struct_cfg_analysis->IsMergeBlock(bb.id())) {
-      // |bb| must be an empty block ending with OpUnreachable.
-      if (bb.begin()->opcode() != SpvOpUnreachable) {
-        return true;
-      }
-    } else if (struct_cfg_analysis->IsContinueBlock(bb.id())) {
+    if (struct_cfg_analysis->IsContinueBlock(bb.id())) {
       // |bb| must be an empty block ending with a branch to the header.
       Instruction* inst = &*bb.begin();
       if (inst->opcode() != SpvOpBranch) {
@@ -758,6 +829,11 @@ bool MergeReturnPass::HasNontrivialUnreachableBlocks(Function* function) {
 
       if (inst->GetSingleWordInOperand(0) !=
           struct_cfg_analysis->ContainingLoop(bb.id())) {
+        return true;
+      }
+    } else if (struct_cfg_analysis->IsMergeBlock(bb.id())) {
+      // |bb| must be an empty block ending with OpUnreachable.
+      if (bb.begin()->opcode() != SpvOpUnreachable) {
         return true;
       }
     } else {
