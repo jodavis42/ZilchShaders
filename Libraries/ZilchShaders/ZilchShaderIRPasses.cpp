@@ -14,7 +14,7 @@ namespace Zero
 //-------------------------------------------------------------------BaseSpirVOptimizerPass
 BaseSpirVOptimizerPass::BaseSpirVOptimizerPass()
 {
-  mTargetEnv = SPV_ENV_UNIVERSAL_1_3;
+  mTargetEnv = SPV_ENV_UNIVERSAL_1_4;
 }
 
 bool BaseSpirVOptimizerPass::RunOptimizer(int primaryPass, Array<String>& flags, ShaderByteStream& inputByteStream, ShaderByteStream& outputByteStream)
@@ -129,7 +129,7 @@ bool SpirVOptimizerPass::RunTranslationPass(ShaderTranslationPassResult& inputDa
 //-------------------------------------------------------------------SpirVValidatorPass
 SpirVValidatorPass::SpirVValidatorPass()
 {
-  mTargetEnv = SPV_ENV_UNIVERSAL_1_3;
+  mTargetEnv = SPV_ENV_UNIVERSAL_1_4;
 }
 
 bool SpirVValidatorPass::RunTranslationPass(ShaderTranslationPassResult& inputData, ShaderTranslationPassResult& outputData)
@@ -141,6 +141,8 @@ bool SpirVValidatorPass::RunTranslationPass(ShaderTranslationPassResult& inputDa
   spv_diagnostic diagnostic = nullptr;
   spv_context context = spvContextCreate((spv_target_env)mTargetEnv);
   spv_validator_options options = spvValidatorOptionsCreate();
+  // @JoshD: There are bugs with pointer type validation in the optimizer. Remove once they're fixed
+  options->relax_logical_pointer = true;
 
   // Construct spirv binary data from out byte stream
   uint32_t wordCount = inputData.mByteStream.WordCount();
