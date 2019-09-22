@@ -99,6 +99,8 @@ ZilchDefineStaticLibrary(ShaderIntrinsicsLibrary)
 {
   builder.CreatableInScriptDefault = false;
   
+  ZilchInitializeType(UnsignedInt);
+
   // BoundType Components
   ZilchInitializeType(GeometryStreamUserData);
   ZilchInitializeType(GeometryFragmentUserData);
