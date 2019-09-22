@@ -1,5 +1,5 @@
 ; SPIR-V
-; Version: 1.2
+; Version: 1.4
 ; Generator: Khronos; 0
 ; Bound: 178
 ; Schema: 0
@@ -7,7 +7,7 @@
                OpCapability Shader
                OpCapability Geometry
                OpMemoryModel Logical GLSL450
-               OpEntryPoint Geometry %EntryPoint_Main_GeometryInOuts6 "EntryPoint_Main_GeometryInOuts6" %In %gl_in %Out %gl_out
+               OpEntryPoint Geometry %EntryPoint_Main_GeometryInOuts6 "EntryPoint_Main_GeometryInOuts6" %TransformData %In %gl_in %Out %gl_out
                OpExecutionMode %EntryPoint_Main_GeometryInOuts6 OutputVertices 5
                OpExecutionMode %EntryPoint_Main_GeometryInOuts6 InputPoints
                OpExecutionMode %EntryPoint_Main_GeometryInOuts6 OutputTriangleStrip

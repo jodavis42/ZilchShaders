@@ -1,12 +1,13 @@
 ; SPIR-V
-; Version: 1.2
+; Version: 1.4
 ; Generator: Khronos; 0
 ; Bound: 77
 ; Schema: 0
                OpCapability Linkage
                OpCapability Shader
+               OpExtension "SPV_KHR_storage_buffer_storage_class"
                OpMemoryModel Logical GLSL450
-               OpEntryPoint Fragment %EntryPoint_Main_RuntimeArray3 "EntryPoint_Main_RuntimeArray3"
+               OpEntryPoint Fragment %EntryPoint_Main_RuntimeArray3 "EntryPoint_Main_RuntimeArray3" %Velocities_RuntimeArray3 %Positions_RuntimeArray3
                OpExecutionMode %EntryPoint_Main_RuntimeArray3 OriginUpperLeft
                OpSource Unknown 100
                OpName %RuntimeArray3 "RuntimeArray3"
@@ -37,9 +38,6 @@
                OpDecorate %_runtimearr_v4float ArrayStride 16
                OpDecorate %Positions_RuntimeArray3 Binding 1
                OpDecorate %Positions_RuntimeArray3 DescriptorSet 0
-               OpDecorate %RuntimeArray_Real4_Buffer Block
-               OpMemberDecorate %RuntimeArray_Real4_Buffer 0 Offset 0
-               OpDecorate %_runtimearr_v4float ArrayStride 16
         %int = OpTypeInt 32 1
 %_ptr_Function_int = OpTypePointer Function %int
 %RuntimeArray3 = OpTypeStruct %int

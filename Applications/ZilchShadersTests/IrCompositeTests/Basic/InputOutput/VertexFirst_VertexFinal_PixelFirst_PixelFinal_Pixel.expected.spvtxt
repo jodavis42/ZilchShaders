@@ -1,12 +1,12 @@
 ; SPIR-V
-; Version: 1.2
+; Version: 1.4
 ; Generator: Khronos; 0
 ; Bound: 234
 ; Schema: 0
                OpCapability Linkage
                OpCapability Shader
                OpMemoryModel Logical GLSL450
-               OpEntryPoint Fragment %EntryPoint_Main_VertexFirst_VertexFinal_PixelFirst_PixelFinal_Pixel "EntryPoint_Main_VertexFirst_VertexFinal_PixelFirst_PixelFinal_Pixel" %In %Out %FragCoord %PointCoord
+               OpEntryPoint Fragment %EntryPoint_Main_VertexFirst_VertexFinal_PixelFirst_PixelFinal_Pixel "EntryPoint_Main_VertexFirst_VertexFinal_PixelFirst_PixelFinal_Pixel" %In %Out %FragCoord %PointCoord %Frame_Data %TransformData %Material
                OpExecutionMode %EntryPoint_Main_VertexFirst_VertexFinal_PixelFirst_PixelFinal_Pixel OriginUpperLeft
                OpSource Unknown 100
                OpName %VertexFirst_VertexFinal_PixelFirst_PixelFinal_Pixel "VertexFirst_VertexFinal_PixelFirst_PixelFinal_Pixel"
