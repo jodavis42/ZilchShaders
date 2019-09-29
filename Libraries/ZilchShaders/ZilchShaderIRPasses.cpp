@@ -141,8 +141,6 @@ bool SpirVValidatorPass::RunTranslationPass(ShaderTranslationPassResult& inputDa
   spv_diagnostic diagnostic = nullptr;
   spv_context context = spvContextCreate((spv_target_env)mTargetEnv);
   spv_validator_options options = spvValidatorOptionsCreate();
-  // @JoshD: There are bugs with pointer type validation in the optimizer. Remove once they're fixed
-  options->relax_logical_pointer = true;
 
   // Construct spirv binary data from out byte stream
   uint32_t wordCount = inputData.mByteStream.WordCount();

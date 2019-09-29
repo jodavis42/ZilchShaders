@@ -1,0 +1,24 @@
+struct SubData
+{
+  var Value0 : Integer;
+}
+
+struct Data
+{
+  var Value0 : Integer;
+  var Value1 : Real;
+  var Value2 : Real3;
+  var Value3 : SubData;
+}
+
+[Pixel][UnitTest]
+struct FunctionSubStructParams
+{
+  var Data : Data = Data();
+  
+  [EntryPoint]
+  function Main()
+  {
+    
+  }
+}

@@ -1,0 +1,34 @@
+[Pixel][UnitTest]
+struct FunctionBasicParams
+{
+  function FnNormal(value : Integer) : Integer
+  {
+    return value + 1;
+  }
+  
+  function FnNormal(value : Real) : Real
+  {
+    return value + 1.0;
+  }
+  
+  function FnNormal(value : Real3) : Real3
+  {
+    return value + Real3(1.0, 1.0, 1.0);
+  }
+  
+  [EntryPoint]
+  function Main()
+  {
+    var int1 = 1;
+    var r1 = this.FnNormal(1);
+    r1 = this.FnNormal(int1);
+    
+    var real1 = 1.0;
+    var r2 = this.FnNormal(1.0);
+    r2 = this.FnNormal(real1);
+    
+    var real3 = Real3(1.0, 1.0, 1.0);
+    var r3 = this.FnNormal(Real3());
+    r3 = this.FnNormal(real3);
+  }
+}
