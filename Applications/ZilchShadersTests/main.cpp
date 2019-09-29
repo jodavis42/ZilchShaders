@@ -17,13 +17,15 @@ public:
 
 void ZilchCompilerErrorCallback(Zilch::ErrorEvent* e)
 {
-  ZPrint("%s", e->GetFormattedMessage(Zilch::MessageFormat::MsvcCpp).c_str());
+  String msg = e->GetFormattedMessage(Zilch::MessageFormat::MsvcCpp);
+  ZPrint("%s", msg.c_str());
   ZeroDebugBreak();
 }
 
 void ZilchTranslationErrorCallback(TranslationErrorEvent* e)
 {
-  ZPrint("%s", e->mFullMessage.c_str());
+  String msg = e->mFullMessage;
+  ZPrint("%s", msg.c_str());
   __debugbreak();
 }
 
