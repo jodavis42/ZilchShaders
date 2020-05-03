@@ -135,7 +135,7 @@ inline Bits BitStream::Measure(bool value)
 }
 inline Bits BitStream::Measure(const String& value)
 {
-  return BYTES_TO_BITS(value.SizeInBytes() + 1);
+  return BYTES_TO_BITS(static_cast<uint32>(value.SizeInBytes()) + 1);
 }
 
 template<typename T>

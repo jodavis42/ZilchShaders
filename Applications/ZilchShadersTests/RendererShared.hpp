@@ -6,7 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-const static size_t mMaxRenderTargets = 4;
+const static u32 mMaxRenderTargets = 4;
 const static size_t mScreenWidth = 2;
 const static size_t mScreenHeight = 2;
 extern String mFragmentExtension;

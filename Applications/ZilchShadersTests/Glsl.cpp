@@ -196,7 +196,7 @@ void GlslRenderer::RunPostProcess(Array<FragmentInfo>& fragments, Array<UniformB
   glUseProgram(programId);
 
   // @JoshD: This leaks right now
-  for(size_t i = 0; i < uniformBuffers.Size(); ++i)
+  for(u32 i = 0; i < (u32)uniformBuffers.Size(); ++i)
   {
     UniformBufferData& uBufferData = uniformBuffers[i];
     // Check if the uniform block exists by name
@@ -228,7 +228,7 @@ void GlslRenderer::RunPostProcess(Array<FragmentInfo>& fragments, Array<UniformB
   glUseProgram(0);
 
   // Collect the results
-  for(size_t i = 0; i < mMaxRenderTargets; ++i)
+  for(u32 i = 0; i < mMaxRenderTargets; ++i)
   {
     // Setup which target to read from
     glReadBuffer(GL_COLOR_ATTACHMENT0 + i);
@@ -252,7 +252,7 @@ bool GlslRenderer::CompileShaderInternal(StringParam filePath, StringParam shade
 
   // Load the code
   cstr code = shaderSource.Data();
-  GLint length = shaderSource.SizeInBytes();
+  GLint length = (int)shaderSource.SizeInBytes();
   glShaderSource(shaderId, 1, &code, &length);
 
   // Compile the shader

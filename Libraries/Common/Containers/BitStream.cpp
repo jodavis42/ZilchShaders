@@ -256,7 +256,7 @@ Bits BitStream::WriteBytes(const byte* data, Bytes dataBytes)
 
 Bits BitStream::Write(const String& value)
 {
-  return WriteBits((const byte*)value.c_str(), BYTES_TO_BITS(value.SizeInBytes() + 1));
+  return WriteBits((const byte*)value.c_str(), BYTES_TO_BITS(static_cast<Bits>(value.SizeInBytes()) + 1));
 }
 
 Bits BitStream::WriteUntilByteAligned()

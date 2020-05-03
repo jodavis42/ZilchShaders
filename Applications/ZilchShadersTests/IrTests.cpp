@@ -53,8 +53,8 @@ struct UnitTestCompilationPipeline : Zilch::EventHandler
     else if(fieldBaseType == ShaderIRTypeBaseType::Struct)
     {
       // Iterate over all members in this struct
-      size_t subTypeCount = fieldType->GetSubTypeCount();
-      for(size_t i = 0; i < subTypeCount; ++i)
+      u32 subTypeCount = fieldType->GetSubTypeCount();
+      for(u32 i = 0; i < subTypeCount; ++i)
       {
         ZilchShaderIRType* subType = fieldType->GetSubType(i);
         RecursivelySetSpecializationConstants(e, subType, id, boolValue, intValue, realValue);
@@ -562,7 +562,7 @@ void TestShaderDefinition(SimpleZilchShaderIRGenerator& shaderGenerator, Rendere
   renderer->RunPostProcess(fragments, glslResult, *reporter);
   RenderResult& zilchResults = results.mLanguageResult[RenderResults::mZilchKey];
 
-  for(size_t i = 0; i < mMaxRenderTargets; ++i)
+  for(u32 i = 0; i < mMaxRenderTargets; ++i)
   {
     // Skip inactive targets
     if(results.mTargets[i] == false)
