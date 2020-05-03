@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2019 Arm Limited
+ * Copyright 2016-2020 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ void CFG::build_immediate_dominators()
 			if (immediate_dominators[block])
 			{
 				assert(immediate_dominators[edge]);
-				immediate_dominators[block] = find_common_dominator(block, edge);
+				immediate_dominators[block] = find_common_dominator(immediate_dominators[block], edge);
 			}
 			else
 				immediate_dominators[block] = edge;
@@ -163,7 +163,7 @@ bool CFG::post_order_visit(uint32_t block_id)
 		{
 			auto &pred = pred_itr->second;
 			auto succ_itr = succeeding_edges.find(block_id);
-			uint32_t num_succeeding_edges = 0;
+			size_t num_succeeding_edges = 0;
 			if (succ_itr != end(succeeding_edges))
 				num_succeeding_edges = succ_itr->second.size();
 

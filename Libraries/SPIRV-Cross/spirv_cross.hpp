@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2019 Arm Limited
+ * Copyright 2015-2020 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -314,6 +314,10 @@ public:
 	SPIREntryPoint &get_entry_point(const std::string &name, spv::ExecutionModel execution_model);
 	const std::string &get_cleansed_entry_point_name(const std::string &name,
 	                                                 spv::ExecutionModel execution_model) const;
+
+	// Traverses all reachable opcodes and sets active_builtins to a bitmask of all builtin variables which are accessed in the shader.
+	void update_active_builtins();
+	bool has_active_builtin(spv::BuiltIn builtin, spv::StorageClass storage);
 
 	// Query and modify OpExecutionMode.
 	const Bitset &get_execution_mode_bitset() const;
@@ -833,10 +837,6 @@ protected:
 	uint32_t cull_distance_count = 0;
 	bool position_invariant = false;
 
-	// Traverses all reachable opcodes and sets active_builtins to a bitmask of all builtin variables which are accessed in the shader.
-	void update_active_builtins();
-	bool has_active_builtin(spv::BuiltIn builtin, spv::StorageClass storage);
-
 	void analyze_parameter_preservation(
 	    SPIRFunction &entry, const CFG &cfg,
 	    const std::unordered_map<uint32_t, std::unordered_set<uint32_t>> &variable_to_blocks,
@@ -888,6 +888,7 @@ protected:
 
 		void add_hierarchy_to_comparison_ids(uint32_t ids);
 		bool need_subpass_input = false;
+		void add_dependency(uint32_t dst, uint32_t src);
 	};
 
 	void build_function_control_flow_graphs_and_analyze();
@@ -925,6 +926,8 @@ protected:
 		std::unordered_map<uint32_t, std::unordered_set<uint32_t>> complete_write_variables_to_block;
 		std::unordered_map<uint32_t, std::unordered_set<uint32_t>> partial_write_variables_to_block;
 		std::unordered_set<uint32_t> access_chain_expressions;
+		// Access chains used in multiple blocks mean hoisting all the variables used to construct the access chain as not all backends can use pointers.
+		std::unordered_map<uint32_t, std::unordered_set<uint32_t>> access_chain_children;
 		const SPIRBlock *current_block = nullptr;
 	};
 
