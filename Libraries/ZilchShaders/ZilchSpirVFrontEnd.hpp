@@ -78,7 +78,7 @@ public:
 
   ZilchShaderIRType* MakeTypeInternal(ZilchShaderIRLibrary* shaderLibrary, ShaderIRTypeBaseType::Enum baseType, StringParam typeName, Zilch::BoundType* zilchType, spv::StorageClass storageClass);
   ZilchShaderIRType* MakeTypeAndPointer(ZilchShaderIRLibrary* shaderLibrary, ShaderIRTypeBaseType::Enum baseType, StringParam typeName, Zilch::BoundType* zilchType, spv::StorageClass pointerStorageClass);
-  ZilchShaderIRType* MakeCoreType(ZilchShaderIRLibrary* shaderLibrary, ShaderIRTypeBaseType::Enum baseType, size_t components, ZilchShaderIRType* componentType, Zilch::BoundType* zilchType, bool makePointerType = true);
+  ZilchShaderIRType* MakeCoreType(ZilchShaderIRLibrary* shaderLibrary, ShaderIRTypeBaseType::Enum baseType, u32 components, ZilchShaderIRType* componentType, Zilch::BoundType* zilchType, bool makePointerType = true);
   ZilchShaderIRType* MakeStructType(ZilchShaderIRLibrary* shaderLibrary, StringParam typeName, Zilch::BoundType* zilchType, spv::StorageClass pointerStorageClass);
   ZilchShaderIRType* FindOrCreateInterfaceType(ZilchShaderIRLibrary* shaderLibrary, StringParam baseTypeName, Zilch::BoundType* zilchType, ShaderIRTypeBaseType::Enum baseType, spv::StorageClass storageClass);
   ZilchShaderIRType* FindOrCreateInterfaceType(ZilchShaderIRLibrary* shaderLibrary, Zilch::BoundType* zilchType, ShaderIRTypeBaseType::Enum baseType, spv::StorageClass storageClass);
@@ -207,6 +207,7 @@ public:
   IZilchShaderIR* PerformTypeCast(Zilch::TypeCastNode*& node, OpType opType, ZilchSpirVFrontEndContext* context);
 
   ZilchShaderIROp* GetIntegerConstant(int value, ZilchSpirVFrontEndContext* context);
+  ZilchShaderIROp* GetIntegerConstant(u32 value, ZilchSpirVFrontEndContext* context);
   ZilchShaderIROp* GetConstant(ZilchShaderIRType* type, StringParam value, ZilchSpirVFrontEndContext* context);
   ZilchShaderIROp* GetConstant(ZilchShaderIRType* type, Zilch::Any value, ZilchSpirVFrontEndContext* context);
   ZilchShaderIROp* ConstructCompositeFromScalar(BasicBlock* block, ZilchShaderIRType* compositeType, IZilchShaderIR* scalar, ZilchSpirVFrontEndContext* context);
@@ -242,10 +243,11 @@ public:
   ZilchShaderIROp* BuildCurrentBlockAccessChain(ZilchShaderIRType* baseResultType, ZilchShaderIROp* selfInstance, IZilchShaderIR* arg0, ZilchSpirVFrontEndContext* context);
   ZilchShaderIROp* BuildCurrentBlockAccessChain(ZilchShaderIRType* baseResultType, ZilchShaderIROp* selfInstance, IZilchShaderIR* arg0, IZilchShaderIR* arg1, ZilchSpirVFrontEndContext* context);
   ZilchShaderIROp* BuildDecorationOp(BasicBlock* block, IZilchShaderIR* decorationTarget, spv::Decoration decorationType, ZilchSpirVFrontEndContext* context);
-  ZilchShaderIROp* BuildDecorationOp(BasicBlock* block, IZilchShaderIR* decorationTarget, spv::Decoration decorationType, int decorationValue, ZilchSpirVFrontEndContext* context);
-  ZilchShaderIROp* BuildMemberDecorationOp(BasicBlock* block, IZilchShaderIR* decorationTarget, int memberOffset, spv::Decoration decorationType, ZilchSpirVFrontEndContext* context);
-  ZilchShaderIROp* BuildMemberDecorationOp(BasicBlock* block, IZilchShaderIR* decorationTarget, int memberOffset, spv::Decoration decorationType, int decorationValue, ZilchSpirVFrontEndContext* context);
+  ZilchShaderIROp* BuildDecorationOp(BasicBlock* block, IZilchShaderIR* decorationTarget, spv::Decoration decorationType, u32 decorationValue, ZilchSpirVFrontEndContext* context);
+  ZilchShaderIROp* BuildMemberDecorationOp(BasicBlock* block, IZilchShaderIR* decorationTarget, u32 memberOffset, spv::Decoration decorationType, ZilchSpirVFrontEndContext* context);
+  ZilchShaderIROp* BuildMemberDecorationOp(BasicBlock* block, IZilchShaderIR* decorationTarget, u32 memberOffset, spv::Decoration decorationType, u32 decorationValue, ZilchSpirVFrontEndContext* context);
   ZilchShaderIRConstantLiteral* GetOrCreateConstantIntegerLiteral(int value);
+  ZilchShaderIRConstantLiteral* GetOrCreateConstantIntegerLiteral(u32 value);
   ZilchShaderIRConstantLiteral* GetOrCreateConstantLiteral(Zilch::Any value);
   ZilchShaderIROp* BuildOpVariable(ZilchShaderIRType* resultType, ZilchSpirVFrontEndContext* context);
   ZilchShaderIROp* BuildOpVariable(BasicBlock* block, ZilchShaderIRType* resultType, int storageConstant, ZilchSpirVFrontEndContext* context);

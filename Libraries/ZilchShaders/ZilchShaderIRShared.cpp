@@ -115,7 +115,7 @@ void ZilchShaderIRType::AddMember(ZilchShaderIRType* memberType, StringParam mem
 {
   mParameters.PushBack(memberType);
 
-  int index = mParameters.Size() - 1;
+  u32 index = static_cast<u32>(mParameters.Size()) - 1;
   mMemberNamesToIndex[memberName] = index;
 
   // Either use the use the zilch type name if possible, otherwise
@@ -128,7 +128,7 @@ void ZilchShaderIRType::AddMember(ZilchShaderIRType* memberType, StringParam mem
   mMemberKeysToIndex[ShaderFieldKey(memberName, memberTypeName)] = index;
 }
 
-String ZilchShaderIRType::GetMemberName(size_t memberIndex)
+String ZilchShaderIRType::GetMemberName(u32 memberIndex)
 {
   // Currently we only store names to indices but not the other way around.
   // For now just iterate through this map to find the member index.
@@ -142,7 +142,12 @@ String ZilchShaderIRType::GetMemberName(size_t memberIndex)
   return String();
 }
 
-ZilchShaderIRType* ZilchShaderIRType::GetSubType(int index) const
+u32 ZilchShaderIRType::FindMemberIndex(const String& memberName)
+{
+  return mMemberNamesToIndex.FindValue(memberName, cInvalidIndex);
+}
+
+ZilchShaderIRType* ZilchShaderIRType::GetSubType(u32 index) const
 {
   bool supportsSubTypes = mBaseType == ShaderIRTypeBaseType::Struct ||
     mBaseType == ShaderIRTypeBaseType::Function;
@@ -154,17 +159,17 @@ ZilchShaderIRType* ZilchShaderIRType::GetSubType(int index) const
   return subType;
 }
 
-size_t ZilchShaderIRType::GetSubTypeCount()
+u32 ZilchShaderIRType::GetSubTypeCount()
 {
   bool supportsSubTypes = mBaseType == ShaderIRTypeBaseType::Struct ||
     mBaseType == ShaderIRTypeBaseType::Function;
 
   ErrorIf(!supportsSubTypes, "Type '%s' does not support sub-types. The parameters on this type are not guaranteed to be types.", mName.c_str());
 
-  return mParameters.Size();
+  return static_cast<u32>(mParameters.Size());
 }
 
-size_t ZilchShaderIRType::GetByteSize() const
+u32 ZilchShaderIRType::GetByteSize() const
 {
   // Force everything to 4 bytes
   if(mBaseType == ShaderIRTypeBaseType::Bool || mBaseType == ShaderIRTypeBaseType::Int || mBaseType == ShaderIRTypeBaseType::Float)
@@ -181,9 +186,9 @@ size_t ZilchShaderIRType::GetByteSize() const
     // The actual size of a fixed array is the number of elements times the array stride.
     // The array stride is the size of the contained item rounded up based upon the max alignment
     ZilchShaderIRType* elementType = mParameters[0]->As<ZilchShaderIRType>();
-    size_t elementByteSize = elementType->GetByteSize();
-    size_t alignment = GetByteAlignment();
-    size_t itemSize = GetSizeAfterAlignment(elementByteSize, alignment);
+    u32 elementByteSize = elementType->GetByteSize();
+    u32 alignment = GetByteAlignment();
+    u32 itemSize = GetSizeAfterAlignment(elementByteSize, alignment);
     return itemSize * mComponents;
   }
   else if(mBaseType == ShaderIRTypeBaseType::Struct)
@@ -193,12 +198,13 @@ size_t ZilchShaderIRType::GetByteSize() const
     // For example struct { float A; vec3 B; float C; vec3 D; }
     // Is actually size 16 + 16 + 16 + 12 = 60 due to vec3 having 
     // to be aligned on 16 byte boundaries.
-    size_t size = 0;
-    for(size_t i = 0; i < mParameters.Size(); ++i)
+    u32 size = 0;
+    u32 parameterCount = static_cast<u32>(mParameters.Size());
+    for(u32 i = 0; i < parameterCount; ++i)
     {
       ZilchShaderIRType* memberType = GetSubType(i);
-      size_t alignment = memberType->GetByteAlignment();
-      size_t memberSize = memberType->GetByteSize();
+      u32 alignment = memberType->GetByteAlignment();
+      u32 memberSize = memberType->GetByteSize();
       // Fix the current offset to be at the required alignment for this member.
       size = GetSizeAfterAlignment(size, alignment);
       // Then add the member size exactly as is (no padding
@@ -214,13 +220,13 @@ size_t ZilchShaderIRType::GetByteSize() const
   return 0;
 }
 
-size_t ZilchShaderIRType::GetByteAlignment() const
+u32 ZilchShaderIRType::GetByteAlignment() const
 {
   if(mBaseType == ShaderIRTypeBaseType::Bool || mBaseType == ShaderIRTypeBaseType::Int || mBaseType == ShaderIRTypeBaseType::Float)
     return 4;
   else if(mBaseType == ShaderIRTypeBaseType::Vector)
   {
-    int components = mComponents;
+    u32 components = mComponents;
     // Real3 has to be aligned to 16 bytes per Vulkan spec.
     if(components == 3)
       components = 4;
@@ -248,8 +254,9 @@ size_t ZilchShaderIRType::GetByteAlignment() const
   else if(mBaseType == ShaderIRTypeBaseType::Struct)
   {
     // The alignment of a struct is the max alignment of all of its members
-    size_t alignment = 0;
-    for(size_t i = 0; i < mParameters.Size(); ++i)
+    u32 alignment = 0;
+    u32 parameterCount = static_cast<u32>(mParameters.Size());
+    for(u32 i = 0; i < parameterCount; ++i)
     {
       ZilchShaderIRType* elementType = GetSubType(i);
       alignment = Math::Max(elementType->GetByteAlignment(), alignment);
@@ -344,19 +351,19 @@ ZilchShaderIRType* GetImageTypeFromSampledImage(ZilchShaderIRType* samplerType)
   return imageType;
 }
 
-int GetStride(ZilchShaderIRType* type, float baseAlignment)
+u32 GetStride(ZilchShaderIRType* type, float baseAlignment)
 {
-  size_t typeSize = type->GetByteSize();
-  int stride = (int)(baseAlignment * Math::Ceil(typeSize / baseAlignment));
+  u32 typeSize = type->GetByteSize();
+  u32 stride = static_cast<u32>(baseAlignment * Math::Ceil(typeSize / baseAlignment));
   return stride;
 }
 
-size_t GetSizeAfterAlignment(size_t size, size_t baseAlignment)
+u32 GetSizeAfterAlignment(u32 size, u32 baseAlignment)
 {
   // Get the remainder to add
-  size_t remainder = baseAlignment - (size % baseAlignment);
+  u32 remainder = baseAlignment - (size % baseAlignment);
   // Mod with the required alignment to get offset 0 when needed
-  size_t alignmentOffset = remainder % baseAlignment;
+  u32 alignmentOffset = remainder % baseAlignment;
   size += alignmentOffset;
   return size;
 }

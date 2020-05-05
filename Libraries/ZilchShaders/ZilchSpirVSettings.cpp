@@ -394,14 +394,15 @@ void ZilchShaderSpirVSettings::AddUniformBufferDescription(UniformBufferDescript
   mUniformBufferDescriptions.PushBack(description);
 }
 
-void ZilchShaderSpirVSettings::AutoSetDefaultUniformBufferDescription(int descriptorSetId, StringParam debugName)
+void ZilchShaderSpirVSettings::AutoSetDefaultUniformBufferDescription(u32 descriptorSetId, StringParam debugName)
 {
   ReturnIf(mFinalized, , "Cannot set built-in names once finalized");
 
-  SetDefaultUniformBufferDescription(mUniformBufferDescriptions.Size(), descriptorSetId, debugName);
+  u32 bindingId = static_cast<u32>(mUniformBufferDescriptions.Size());
+  SetDefaultUniformBufferDescription(bindingId, descriptorSetId, debugName);
 }
 
-void ZilchShaderSpirVSettings::SetDefaultUniformBufferDescription(int bindingId, int descriptorSetId, StringParam debugName)
+void ZilchShaderSpirVSettings::SetDefaultUniformBufferDescription(u32 bindingId, u32 descriptorSetId, StringParam debugName)
 {
   ReturnIf(mFinalized, , "Cannot set built-in names once finalized");
 

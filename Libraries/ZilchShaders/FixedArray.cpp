@@ -21,7 +21,7 @@ void FixedArrayBackupConstructor(ZilchSpirVFrontEnd* translator, Zilch::Function
   FixedArrayDefaultConstructor(translator, staticTypeNode->ResultType, context);
 }
 
-bool ValidateIndexLiteral(ZilchSpirVFrontEnd* translator, Zilch::ExpressionNode* node, ZilchShaderIROp* indexOperand, int maxValue, ZilchSpirVFrontEndContext* context)
+bool ValidateIndexLiteral(ZilchSpirVFrontEnd* translator, Zilch::ExpressionNode* node, ZilchShaderIROp* indexOperand, u32 maxValue, ZilchSpirVFrontEndContext* context)
 {
   // Check if this is a constant (literal). If not we can't validate.
   if(indexOperand->mOpType != OpType::OpConstant)
@@ -29,7 +29,7 @@ bool ValidateIndexLiteral(ZilchSpirVFrontEnd* translator, Zilch::ExpressionNode*
 
   // Get the literal value
   ZilchShaderIRConstantLiteral* literal = indexOperand->mArguments[0]->As<ZilchShaderIRConstantLiteral>();
-  int indexLiteral = literal->mValue.Get<int>();
+  u32 indexLiteral = literal->mValue.Get<u32>();
   // If it's in the valid range then this index is valid;
   if(0 <= indexLiteral && indexLiteral < maxValue)
     return true;

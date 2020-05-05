@@ -35,7 +35,7 @@ bool ZilchShaderGlslBackend::RunTranslationPass(ShaderTranslationPassResult& inp
 
   ShaderByteStream& inputByteStream = inputData.mByteStream;
   uint32_t* data = (uint32_t*)inputByteStream.Data();
-  uint32 wordCount = inputByteStream.WordCount();
+  size_t wordCount = inputByteStream.WordCount();
 
   spirv_cross::CompilerGLSL compiler(data, wordCount);
   // Set options
@@ -262,14 +262,14 @@ void ZilchShaderGlslBackend::PopulateTypeName(GlslBackendInternalData& internalD
   // @JoshD: Deal with arrays later?
 }
 
-void ZilchShaderGlslBackend::PopulateMemberTypeInfo(GlslBackendInternalData& internalData, spirv_cross::SPIRType& parentType, int memberIndex, ShaderResourceReflectionData& reflectionData, bool isInterfaceType)
+void ZilchShaderGlslBackend::PopulateMemberTypeInfo(GlslBackendInternalData& internalData, spirv_cross::SPIRType& parentType, u32 memberIndex, ShaderResourceReflectionData& reflectionData, bool isInterfaceType)
 {
   spirv_cross::CompilerGLSL* compiler = internalData.mCompiler;
 
   spirv_cross::SPIRType memberType = compiler->get_type(parentType.member_types[memberIndex]);
   PopulateTypeName(internalData, memberType, reflectionData);
   reflectionData.mInstanceName = compiler->get_member_name(parentType.self, memberIndex).c_str();
-  reflectionData.mSizeInBytes = compiler->get_declared_struct_member_size(parentType, memberIndex);
+  reflectionData.mSizeInBytes = (u32)compiler->get_declared_struct_member_size(parentType, memberIndex);
 
   reflectionData.mStride = 0;
   // Get array stride
@@ -298,11 +298,11 @@ void ZilchShaderGlslBackend::PopulateTypeInfo(GlslBackendInternalData& internalD
   // size and whether this is a matrix or vector
   if(isInterfaceType)
   {
-    size_t baseTypeByteSize = spirvType.width / 8;
+    u32 baseTypeByteSize = spirvType.width / 8;
     reflectionData.mSizeInBytes = spirvType.columns * spirvType.vecsize * baseTypeByteSize;
   }
   else
-    reflectionData.mSizeInBytes = compiler->get_declared_struct_size(spirvType);
+    reflectionData.mSizeInBytes = (u32)compiler->get_declared_struct_size(spirvType);
 }
 
 void ZilchShaderGlslBackend::ExtractResourceReflection(GlslBackendInternalData& internalData, spirv_cross::Resource& resource, Array<ShaderStageResource>& results, bool isInterfaceType)
@@ -312,7 +312,7 @@ void ZilchShaderGlslBackend::ExtractResourceReflection(GlslBackendInternalData& 
   String instanceName = compiler->get_name(resource.id).c_str();
 
   // Find the reflection data by name instance name
-  int index = results.Size();
+  size_t index = results.Size();
   for(size_t i = 0; i < results.Size(); ++i)
   {
     if(results[i].mReflectionData.mInstanceName == instanceName)
@@ -347,7 +347,7 @@ void ZilchShaderGlslBackend::ExtractResourceReflection(GlslBackendInternalData& 
   {
     ShaderResourceReflectionData& memberReflection = stageResource.mMembers[i];
     // Populate the member reflection data (offset, size, etc...)
-    PopulateMemberTypeInfo(internalData, spirvType, i, memberReflection, isInterfaceType);
+    PopulateMemberTypeInfo(internalData, spirvType, static_cast<u32>(i), memberReflection, isInterfaceType);
     // Add a string to member index mapping
     stageResource.mLookupMap[memberReflection.mInstanceName] = i;
   }

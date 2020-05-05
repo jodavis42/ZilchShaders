@@ -231,7 +231,7 @@ void CreateFloatMatrixFunctions(SpirVExtensionLibrary* extLibrary, TypeGroups& t
   Zilch::Core& core = Zilch::Core::GetInstance();
   Zilch::BoundType* mathType = core.MathType;
 
-  for(size_t i = 2; i <= 4; ++i)
+  for(u32 i = 2; i <= 4; ++i)
   {
     Zilch::BoundType* zilchType = types.GetMatrixType(i, i)->mZilchType;
     String zilchTypeName = zilchType->Name;
@@ -347,7 +347,7 @@ void AddGlslExtensionIntrinsicOps(Zilch::LibraryBuilder& builder, SpirVExtension
   }
 
   // Matrices
-  for(size_t i = 2; i <= 4; ++i)
+  for(u32 i = 2; i <= 4; ++i)
   {
     Zilch::BoundType* zilchType = types.GetMatrixType(i, i)->mZilchType;
     AddGlslIntrinsic(builder, type, extLibrary, GLSLstd450Determinant, "Determinant", OneParameter(zilchType), realType);

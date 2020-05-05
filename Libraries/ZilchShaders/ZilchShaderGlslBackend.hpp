@@ -49,7 +49,7 @@ protected:
   void FindUsedSampledImageBindings(GlslBackendInternalData& internalData);
   void HandleCompiledSampledImages(GlslBackendInternalData& internalData);
   void PopulateTypeName(GlslBackendInternalData& internalData, spirv_cross::SPIRType& spirVType, ShaderResourceReflectionData& reflectionData);
-  void PopulateMemberTypeInfo(GlslBackendInternalData& internalData, spirv_cross::SPIRType& parentType, int memberIndex, ShaderResourceReflectionData& reflectionData, bool isInterfaceType);
+  void PopulateMemberTypeInfo(GlslBackendInternalData& internalData, spirv_cross::SPIRType& parentType, u32 memberIndex, ShaderResourceReflectionData& reflectionData, bool isInterfaceType);
   void PopulateTypeInfo(GlslBackendInternalData& internalData, spirv_cross::SPIRType& spirvType, ShaderResourceReflectionData& reflectionData, bool isInterfaceType);
   void ExtractResourceReflection(GlslBackendInternalData& internalData, spirv_cross::Resource& resource, Array<ShaderStageResource>& results, bool isInterfaceType);
   template <typename VectorType>

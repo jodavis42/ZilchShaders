@@ -33,7 +33,7 @@ struct TypeGroups
   // SpirV does not support non-floating point matrix types
   //Array<ZilchShaderIRType*> mIntegerMatrixTypes;
 
-  ZilchShaderIRType* GetMatrixType(int y, int x)
+  ZilchShaderIRType* GetMatrixType(u32 y, u32 x)
   {
     y -= 2;
     x -= 2;

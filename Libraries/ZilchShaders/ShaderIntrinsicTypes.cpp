@@ -236,9 +236,9 @@ void AddMathOps(Zilch::LibraryBuilder& builder, Zilch::BoundType* type, TypeGrou
     AddFunction<OpType::OpSelect>(builder, type, zilchType, "Select", vectorBoolType, "condition", zilchType, "obj1", zilchType, "obj2");
   }
 
-  for(size_t y = 2; y <= 4; ++y)
+  for(u32 y = 2; y <= 4; ++y)
   {
-    for(size_t x = 2; x <= 4; ++x)
+    for(u32 x = 2; x <= 4; ++x)
     {
       ZilchShaderIRType* shaderType = types.GetMatrixType(y, x);
       Zilch::BoundType* zilchType = shaderType->mZilchType;

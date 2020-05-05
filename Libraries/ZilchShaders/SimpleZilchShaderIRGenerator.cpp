@@ -358,21 +358,21 @@ void SimplifiedShaderReflectionData::BuildFinalSampledImageMappings(SampledImage
   for(size_t i = 0; i < resourceMappings->mImageRemappings.Size(); ++i)
   {
     String name = resourceMappings->mImageRemappings[i];
-    int* resultIndex = imageIndices.FindPointer(name);
+    size_t* resultIndex = imageIndices.FindPointer(name);
     if(resultIndex != nullptr)
       results.mImageIds.PushBack(*resultIndex);
   }
   for(size_t i = 0; i < resourceMappings->mSamplerRemappings.Size(); ++i)
   {
     String name = resourceMappings->mSamplerRemappings[i];
-    int* resultIndex = samplerIndices.FindPointer(name);
+    size_t* resultIndex = samplerIndices.FindPointer(name);
     if(resultIndex != nullptr)
       results.mSamplerIds.PushBack(*resultIndex);
   }
   for(size_t i = 0; i < resourceMappings->mSampledImageRemappings.Size(); ++i)
   {
     String name = resourceMappings->mSampledImageRemappings[i];
-    int* resultIndex = sampledImageIndices.FindPointer(name);
+    size_t* resultIndex = sampledImageIndices.FindPointer(name);
     if(resultIndex != nullptr)
       results.mSampledImageIds.PushBack(*resultIndex);
   }
@@ -389,17 +389,17 @@ void SimplifiedShaderReflectionData::PopulateSamplerAndImageData(HashMap<String,
   // (e.g. an image can't produce a sampler) but for code re-use this is much cleaner.
   for(size_t i = 0; i < remapData->mImageIds.Size(); ++i)
   {
-    int imageIndex = remapData->mImageIds[i];
+    size_t imageIndex = remapData->mImageIds[i];
     results.PushBack(&mReflection.mImages[imageIndex].mReflectionData);
   }
   for(size_t i = 0; i < remapData->mSamplerIds.Size(); ++i)
   {
-    int samplerIndex = remapData->mSamplerIds[i];
+    size_t samplerIndex = remapData->mSamplerIds[i];
     results.PushBack(&mReflection.mSamplers[samplerIndex].mReflectionData);
   }
   for(size_t i = 0; i < remapData->mSampledImageIds.Size(); ++i)
   {
-    int index = remapData->mSampledImageIds[i];
+    size_t index = remapData->mSampledImageIds[i];
     results.PushBack(&mReflection.mSampledImages[index].mReflectionData);
   }
 }

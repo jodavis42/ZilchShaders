@@ -223,16 +223,18 @@ public:
   void AddMember(ZilchShaderIRType* memberType, StringParam memberName);
 
   /// Gets a sub-type at the given index from this type. Sub types are only valid on structs/functions.
-  ZilchShaderIRType* GetSubType(int index) const;
+  ZilchShaderIRType* GetSubType(u32 index) const;
   /// Returns the number of sub-types contained. Only valid on structs/functions.
-  size_t GetSubTypeCount();
+  u32 GetSubTypeCount();
   /// Finds a sub-member's name via the member index. For debug names only now.
-  String GetMemberName(size_t memberIndex);
+  String GetMemberName(u32 memberIndex);
+  /// Returns the index for the member by the given name. Returns cInvalidIndex if not found;
+  u32 FindMemberIndex(const String& memberName);
 
   /// How many bytes does this type require? Includes sub-type padding.
-  size_t GetByteSize() const;
+  u32 GetByteSize() const;
   /// What starting byte alignment does this type require?
-  size_t GetByteAlignment() const;
+  u32 GetByteAlignment() const;
   /// What is the base primitive type. If this is a vector or matrix it'll return the
   /// underlying component type. If this is a bool, integer, or float then that is returned.
   /// Otherwise the stored type (e.g. struct) will be returned.
@@ -266,12 +268,12 @@ public:
   ShaderIRTypeMeta* mMeta;
 
   /// Only valid on scalar/vector/matrix types
-  size_t mComponents;
+  u32 mComponents;
   ZilchShaderIRType* mComponentType;
   // @JoshD: Unify with subtypes later?
   Array<IZilchShaderIR*> mParameters;
-  HashMap<String, int> mMemberNamesToIndex;
-  HashMap<ShaderFieldKey, int> mMemberKeysToIndex;
+  HashMap<String, u32> mMemberNamesToIndex;
+  HashMap<ShaderFieldKey, u32> mMemberKeysToIndex;
   /// If this is a value type then this points to the corresponding pointer type. Otherwise this is null.
   ZilchShaderIRType* mPointerType;
   /// If this is a pointer type then this points to the corresponding value type. Otherwise this is null.
@@ -283,6 +285,8 @@ public:
   // @JoshD: Turn into flags later
   /// Does this type have a main function necessary for compositing?
   bool mHasMainFunction;
+
+  constexpr static u32 cInvalidIndex = static_cast<u32>(-1);
 };
 
 /// Returns what the component type is (only valid for scalars (null), vectors, and matrices)
@@ -290,8 +294,8 @@ ZilchShaderIRType* GetComponentType(ZilchShaderIRType* compositeType);
 bool IsScalarType(ZilchShaderIRType* compositeType);
 ZilchShaderIRType* GetImageTypeFromSampledImage(ZilchShaderIRType* samplerType);
 /// Returns the required stride of the given type with a base alignment factor (rounds up to nearest multiple of alignment)
-int GetStride(ZilchShaderIRType* type, float baseAlignment);
-size_t GetSizeAfterAlignment(size_t size, size_t baseAlignment);
+u32 GetStride(ZilchShaderIRType* type, float baseAlignment);
+u32 GetSizeAfterAlignment(u32 size, u32 baseAlignment);
 
 // Generate a unique identifier for a template type with no filled in arguments.
 // Used for finding 'base' template types.

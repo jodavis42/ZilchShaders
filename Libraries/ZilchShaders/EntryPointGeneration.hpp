@@ -61,6 +61,11 @@ public:
       mDecorationType = type;
       mValue = value;
     }
+    explicit DecorationParam(spv::Decoration type, u32 value)
+    {
+      mDecorationType = type;
+      mValue = static_cast<int>(value);
+    }
     spv::Decoration mDecorationType;
     int mValue;
   };
@@ -119,7 +124,7 @@ struct ShaderInterfaceField
   ShaderInterfaceField();
 
   // The index of this field within it's owning data structure. Needed to get a pointer to the actual memory address.
-  int mFieldIndex;
+  u32 mFieldIndex;
   // Name of the field to generate. Should not be used for linking purposes.
   String mFieldName;
   // The meta (uniquely owned by this type) for the field. Stores all attributes needed for resolution.
@@ -349,7 +354,7 @@ public:
   
   void CopyField(BasicBlock* targetFnBlock, ZilchShaderIRType* sourceLoadType, ZilchShaderIROp* source, ZilchShaderIROp* dest);
   void CopyFromInterfaceType(BasicBlock* block, ZilchShaderIROp* dest, ZilchShaderIROp* source, ShaderInterfaceType* sourceInterface, spv::StorageClass destStorageClass, spv::StorageClass sourceStorageClass);
-  ZilchShaderIROp* GetMemberInstanceFrom(BasicBlock* block, ZilchShaderIROp* source, int sourceOffset, spv::StorageClass sourceStorageClass);
+  ZilchShaderIROp* GetMemberInstanceFrom(BasicBlock* block, ZilchShaderIROp* source, u32 sourceOffset, spv::StorageClass sourceStorageClass);
   ZilchShaderIROp* GetNamedMemberInstanceFrom(BasicBlock* block, ZilchShaderIROp* source, StringParam memberName, spv::StorageClass sourceStorageClass);
   ZilchShaderIROp* GetNamedMemberInstanceFrom(BasicBlock* block, ZilchShaderIROp* source, const ShaderFieldKey& fieldKey, spv::StorageClass sourceStorageClass);
 
@@ -371,8 +376,8 @@ public:
   /// Recursively decorate a struct (currently setup for runtime arrays)
   void RecursivelyDecorateStructType(BasicBlock* decorationBlock, ZilchShaderIRType* structType, ShaderStageResource& stageResource);
 
-  int FindBindingId(HashSet<int>& usedIds);
-  int FindBindingId(HashSet<int>& usedIds1, HashSet<int>& usedIds2);
+  u32 FindBindingId(HashSet<u32>& usedIds);
+  u32 FindBindingId(HashSet<u32>& usedIds1, HashSet<u32>& usedIds2);
 
   // Copy reflection data from the internal interface info to the entry point
   void CopyReflectionDataToEntryPoint(EntryPointInfo* entryPointInfo, ShaderInterfaceInfo& interfaceInfo);
@@ -381,7 +386,7 @@ public:
   void CopyReflectionDataGlobals(Array<ShaderStageResource>& resourceList, ShaderInterfaceInfo& interfaceInfo, InterfaceInfoGroup& group);
 
   // Create a shader interface field from the interface group and the field index.
-  void CreateShaderInterfaceField(ShaderInterfaceField& interfaceField, InterfaceInfoGroup& interfaceGroup, int index);
+  void CreateShaderInterfaceField(ShaderInterfaceField& interfaceField, InterfaceInfoGroup& interfaceGroup, u32 index);
 
   // Some types aren't allowed in any interface declarations (uniform/in/out).
   // This function converts them to the next best thing (e.g. bool -> int)
