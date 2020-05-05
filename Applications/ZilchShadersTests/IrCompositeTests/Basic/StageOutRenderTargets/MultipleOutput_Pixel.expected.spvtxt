@@ -10,13 +10,13 @@
                OpExecutionMode %EntryPoint_Main_MultipleOutput_Pixel OriginUpperLeft
                OpSource Unknown 100
                OpName %MultipleOutput_Pixel "MultipleOutput_Pixel"
-               OpMemberName %MultipleOutput_Pixel 1 "Stage_Target1_Real4"
-               OpMemberName %MultipleOutput_Pixel 3 "Stage_Target3_Real4"
-               OpMemberName %MultipleOutput_Pixel 2 "Stage_Target2_Real4"
                OpMemberName %MultipleOutput_Pixel 0 "Stage_Target0_Real4"
+               OpMemberName %MultipleOutput_Pixel 1 "Stage_Target1_Real4"
+               OpMemberName %MultipleOutput_Pixel 2 "Stage_Target2_Real4"
+               OpMemberName %MultipleOutput_Pixel 3 "Stage_Target3_Real4"
                OpName %PixelMultipleOutput "PixelMultipleOutput"
-               OpMemberName %PixelMultipleOutput 1 "Target2"
                OpMemberName %PixelMultipleOutput 0 "Target012"
+               OpMemberName %PixelMultipleOutput 1 "Target2"
                OpMemberName %PixelMultipleOutput 2 "Target43"
                OpName %Target0 "Target0"
                OpName %Target1 "Target1"
