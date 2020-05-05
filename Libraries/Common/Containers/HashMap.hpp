@@ -81,6 +81,12 @@ public:
   {
   }
 
+  HashMap(const std::initializer_list<pair>& initList)
+  {
+    for(auto&& value : initList)
+      Insert(value);
+  }
+
   struct valuerange
   {
     typedef data_type value_type;
@@ -97,6 +103,14 @@ public:
     reference Front() { return r.Front().second; }
     valuerange& All() { return *this; }
     const valuerange& All() const { return *this; }
+
+    // C++ iterator/range interface
+    valuerange begin() { return *this; }
+    valuerange end() { return valuerange(r.end()); }
+    bool operator==(const valuerange& rhs) const { return r == rhs.r; }
+    bool operator!=(const valuerange& rhs) const { return r != rhs.r; }
+    range& operator++() { return ++r; }
+    reference operator*() { return Front(); }
   };
 
   struct keyrange
@@ -114,6 +128,14 @@ public:
     value_type& Front() { return r.Front().first; }
     keyrange& All() { return *this; }
     const keyrange& All() const { return *this; }
+
+    // C++ iterator/range interface
+    valuerange begin() { return *this; }
+    valuerange end() { return valuerange(r.end()); }
+    bool operator==(const keyrange& rhs) const { return r == rhs.r; }
+    bool operator!=(const keyrange& rhs) const { return r != rhs.r; }
+    range& operator++() { return ++r; }
+    value_type& operator*() { return Front(); }
   };
 
   /// range of all the values in the map.

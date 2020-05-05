@@ -76,7 +76,9 @@ public:
 
     /// Data Access
     iterator        Begin()                           { return mBegin;         }
+    iterator        begin()                           { return Begin();        }
     iterator        End()                             { return mEnd;           }
+    iterator        end()                             { return End();          }
     void            PopFront()                        { ++mBegin;              }
     void            PopBack()                         { --mEnd;                }
     reference       Front()                           { return *mBegin;        }
@@ -213,6 +215,15 @@ public:
     PushBack(p4);
     PushBack(p5);
   }
+  Array(const std::initializer_list<ValueType>& initList)
+    : mData(nullptr),
+      mCapacity(0),
+      mSize(0)
+  {
+    Reserve(initList.size());
+    for(auto&& value : initList)
+      PushBack(value);
+  }
 
   /// Destructor
   ~Array()
@@ -271,10 +282,14 @@ public:
   /// Returns an iterator to the beginning of the array
   iterator       Begin()       { return mData; }
   const_iterator Begin() const { return mData; }
+  iterator       begin() { return Begin(); }
+  const_iterator begin() const { return Begin(); }
 
   /// Returns an iterator to the end of the array
   iterator       End()       { return mData + mSize; }
   const_iterator End() const { return mData + mSize; }
+  iterator       end() { return End(); }
+  const_iterator end() const { return End(); }
 
   /// Returns a range of all elements in the array
   range All()       { return range(Begin(), End());           }
