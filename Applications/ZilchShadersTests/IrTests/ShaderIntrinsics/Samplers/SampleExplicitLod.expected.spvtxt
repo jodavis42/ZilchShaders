@@ -3,7 +3,6 @@
 ; Generator: Khronos; 0
 ; Bound: 93
 ; Schema: 0
-               OpCapability Linkage
                OpCapability Shader
                OpMemoryModel Logical GLSL450
                OpEntryPoint Fragment %EntryPoint_Main_SampleExplicitLod "EntryPoint_Main_SampleExplicitLod" %SampledImage_SampleExplicitLod %Image_SampleExplicitLod %Sampler_SampleExplicitLod %SampledImageCube_SampleExplicitLod %ImageCube_SampleExplicitLod
