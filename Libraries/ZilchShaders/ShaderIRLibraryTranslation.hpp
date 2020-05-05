@@ -41,20 +41,16 @@ struct TypeGroups
   }
 };
 
+void ResolveSimpleFunctionFromOpType(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* functionCallNode,
+  Zilch::MemberAccessNode* memberAccessNode, OpType opType,
+  ZilchSpirVFrontEndContext* context);
+
+
 // A simple helper to resolve a function (assumed to be value types) into calling a basic op function.
 template <OpType opType>
 inline void ResolveSimpleFunction(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* functionCallNode, Zilch::MemberAccessNode* memberAccessNode, ZilchSpirVFrontEndContext* context)
 {
-  ZilchShaderIRType* resultType = translator->FindType(functionCallNode->ResultType, functionCallNode);
-
-  ZilchShaderIROp* result = translator->BuildIROpNoBlockAdd(opType, resultType, context);
-  for(size_t i = 0; i < functionCallNode->Arguments.Size(); ++i)
-  {
-    ZilchShaderIROp* arg = translator->WalkAndGetValueTypeResult(functionCallNode->Arguments[i], context);
-    result->mArguments.PushBack(arg);
-  }
-  context->GetCurrentBlock()->AddOp(result);
-  context->PushIRStack(result);
+  ResolveSimpleFunctionFromOpType(translator, functionCallNode, memberAccessNode, opType, context);
 }
 
 void ResolveVectorTypeCount(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* functionCallNode, Zilch::MemberAccessNode* memberAccessNode, ZilchSpirVFrontEndContext* context);
@@ -102,13 +98,14 @@ void ResolveQuaternionSet(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNod
 void TranslateQuaternionSplatConstructor(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* fnCallNode, Zilch::StaticTypeNode* staticTypeNode, ZilchSpirVFrontEndContext* context);
 void TranslateBackupQuaternionConstructor(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* fnCallNode, Zilch::StaticTypeNode* staticTypeNode, ZilchSpirVFrontEndContext* context);
 
+void ResolveUnaryOp(ZilchSpirVFrontEnd* translator, Zilch::UnaryOperatorNode* unaryOpNode, OpType opType, ZilchSpirVFrontEndContext* context);
 void ResolveBinaryOp(ZilchSpirVFrontEnd* translator, Zilch::BinaryOperatorNode* binaryOpNode, OpType opType, ZilchSpirVFrontEndContext* context);
 void ResolveBinaryOp(ZilchSpirVFrontEnd* translator, Zilch::BinaryOperatorNode* binaryOpNode, OpType opType, IZilchShaderIR* lhs, IZilchShaderIR* rhs, ZilchSpirVFrontEndContext* context);
 
 template <OpType opType>
 inline void ResolveUnaryOperator(ZilchSpirVFrontEnd* translator, Zilch::UnaryOperatorNode* unaryOpNode, ZilchSpirVFrontEndContext* context)
 {
-  translator->PerformUnaryOp(unaryOpNode, opType, context);
+  ResolveUnaryOp(translator, unaryOpNode, opType, context);
 }
 
 template <OpType opType>

@@ -9,6 +9,11 @@
 namespace Zero
 {
 
+void ResolveUnaryOp(ZilchSpirVFrontEnd* translator, Zilch::UnaryOperatorNode* unaryOpNode, OpType opType, ZilchSpirVFrontEndContext* context)
+{
+  translator->PerformUnaryOp(unaryOpNode, opType, context);
+}
+
 // Resolves a binary operator node given the expected return type.
 void ResolveBinaryOp(ZilchSpirVFrontEnd* translator, Zilch::BinaryOperatorNode* binaryOpNode, OpType opType, ZilchSpirVFrontEndContext* context)
 {
