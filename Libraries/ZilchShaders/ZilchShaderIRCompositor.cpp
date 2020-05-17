@@ -130,11 +130,11 @@ bool ZilchShaderIRCompositor::CompositeCompute(ShaderDefinition& shaderDef, Comp
   mShaderCompositeName = shaderDef.mShaderName;
   mComputeShaderProperties = computeProperties;
   
-  Array<ZilchShaderIRType*> fragments;
+  ZilchShaderPtrArray fragments;
   // Find all compute fragments
   for(size_t i = 0; i < shaderDef.mFragments.Size(); ++i)
   {
-    ZilchShaderIRType* shaderType = shaderDef.mFragments[i];
+    ZilchShaderPtr shaderType = shaderDef.mFragments[i];
     ShaderIRTypeMeta* fragmentMeta = shaderType->mMeta;
     // If this is a valid fragment type
     if(fragmentMeta != nullptr && fragmentMeta->mFragmentType == FragmentType::Compute)
@@ -182,7 +182,7 @@ bool ZilchShaderIRCompositor::CompositeCompute(ShaderDefinition& shaderDef, Comp
   return true;
 }
 
-void ZilchShaderIRCompositor::CollectFragmentsPerStage(Array<ZilchShaderIRType*>& inputFragments, CompositedShaderInfo& compositeInfo)
+void ZilchShaderIRCompositor::CollectFragmentsPerStage(ZilchShaderPtrArray& inputFragments, CompositedShaderInfo& compositeInfo)
 {
   // Reset all stages
   for(size_t i = 0; i < CompositorShaderStage::Size; ++i)
@@ -196,7 +196,7 @@ void ZilchShaderIRCompositor::CollectFragmentsPerStage(Array<ZilchShaderIRType*>
   // Iterate over all fragments and map them to the correct compositor shader stage
   for(size_t i = 0; i < inputFragments.Size(); ++i)
   {
-    ZilchShaderIRType* shaderType = inputFragments[i];
+    ZilchShaderPtr shaderType = inputFragments[i];
     ShaderIRTypeMeta* fragmentMeta = shaderType->mMeta;
     // If this is a valid fragment type
     if(fragmentMeta != nullptr && fragmentMeta->mFragmentType != FragmentType::None)
@@ -230,13 +230,13 @@ void ZilchShaderIRCompositor::CollectFragmentsPerStage(Array<ZilchShaderIRType*>
   geometryStageInfo.mPrimitiveTypes = geometryStageInfo.mFragmentTypes;
   if(!geometryStageInfo.mPrimitiveTypes.Empty())
   {
-    ZilchShaderIRType* geometryFragmentType = geometryStageInfo.mPrimitiveTypes[0];
+    ZilchShaderPtr geometryFragmentType = geometryStageInfo.mPrimitiveTypes[0];
     Zilch::GeometryFragmentUserData* geometryUserData = geometryFragmentType->mZilchType->Has<Zilch::GeometryFragmentUserData>();
     ErrorIf(geometryUserData == nullptr, "Geometry Fragment is missing user data");
 
     // The vertex in/outs come from the in/out stream types in the main of the geometry fragment.
-    ZilchShaderIRType* inputVertexType = geometryUserData->GetInputVertexType();
-    ZilchShaderIRType* outputVertexType = geometryUserData->GetOutputVertexType();
+    ZilchShaderPtr inputVertexType = geometryUserData->GetInputVertexType();
+    ZilchShaderPtr outputVertexType = geometryUserData->GetOutputVertexType();
     geometryStageInfo.mInputVertexTypes.PushBack(inputVertexType);
     geometryStageInfo.mOutputVertexTypes.PushBack(outputVertexType);
   }
@@ -285,7 +285,7 @@ bool ZilchShaderIRCompositor::ValidateStages(CompositedShaderInfo& compositeInfo
 
     for(size_t i = 0; i < stageInfo->mFragmentTypes.Size(); ++i)
     {
-      ZilchShaderIRType* fragmentType = stageInfo->mFragmentTypes[i];
+      ZilchShaderPtr fragmentType = stageInfo->mFragmentTypes[i];
       if(!fragmentType->mHasMainFunction)
       {
         Zilch::BoundType* zilchType = fragmentType->mMeta->mZilchType;
@@ -304,7 +304,7 @@ bool ZilchShaderIRCompositor::ValidateStages(CompositedShaderInfo& compositeInfo
     // Check geometry shaders to make sure they only have one fragment
     if(stageInfo->mFragmentType == FragmentType::Geometry)
     {
-      ZilchShaderIRType* fragmentType = stageInfo->mFragmentTypes[0];
+      ZilchShaderPtr fragmentType = stageInfo->mFragmentTypes[0];
       if(stageInfo->mFragmentTypes.Size() != 1)
       {
         Zilch::BoundType* zilchType = fragmentType->mMeta->mZilchType;
@@ -346,7 +346,7 @@ void ZilchShaderIRCompositor::CollectExpectedOutputs(CompositedShaderInfo& compo
   }
 }
 
-void ZilchShaderIRCompositor::CollectExpectedOutputs(Array<ZilchShaderIRType*>& fragmentTypes, StageAttachmentLinkingInfo& linkingInfo)
+void ZilchShaderIRCompositor::CollectExpectedOutputs(ZilchShaderPtrArray& fragmentTypes, StageAttachmentLinkingInfo& linkingInfo)
 {
   SpirVNameSettings& nameSettings = mSettings->mNameSettings;
   FragmentType::Enum currentFragmentType = linkingInfo.mOwningStage->mFragmentType;
@@ -356,7 +356,7 @@ void ZilchShaderIRCompositor::CollectExpectedOutputs(Array<ZilchShaderIRType*>& 
   // Outputs are only actual outputs if a subsequent stage inputs it.
   for(size_t i = 0; i < fragmentTypes.Size(); ++i)
   {
-    ZilchShaderIRType* shaderType = fragmentTypes[i];
+    ZilchShaderPtr shaderType = fragmentTypes[i];
 
     ShaderIRTypeMeta* typeMeta = shaderType->mMeta;
     for(size_t fieldIndex = 0; fieldIndex < typeMeta->mFields.Size(); ++fieldIndex)
@@ -399,7 +399,7 @@ void ZilchShaderIRCompositor::ResolveInputs(StageLinkingInfo* previousStage, Sta
   Link(previousStage->mPrimitiveLinkingInfo, currentStage, currentStage->mPrimitiveTypes, currentStage->mPrimitiveLinkingInfo);
 }
 
-void ZilchShaderIRCompositor::Link(StageAttachmentLinkingInfo& prevStageInfo, StageLinkingInfo* currentStage, Array<ZilchShaderIRType*>& fragmentTypes, StageAttachmentLinkingInfo& currStageInfo)
+void ZilchShaderIRCompositor::Link(StageAttachmentLinkingInfo& prevStageInfo, StageLinkingInfo* currentStage, ZilchShaderPtrArray& fragmentTypes, StageAttachmentLinkingInfo& currStageInfo)
 {
   SpirVNameSettings& nameSettings = mSettings->mNameSettings;
 
@@ -412,7 +412,7 @@ void ZilchShaderIRCompositor::Link(StageAttachmentLinkingInfo& prevStageInfo, St
   // Iterate over all of the fragment types (in order) to try and match inputs
   for(size_t fragIndex = 0; fragIndex < fragmentTypes.Size(); ++fragIndex)
   {
-    ZilchShaderIRType* fragmentType = fragmentTypes[fragIndex];
+    ZilchShaderPtr fragmentType = fragmentTypes[fragIndex];
     ShaderIRTypeMeta* fragmentTypeMeta = fragmentType->mMeta;
 
     // Create the information about how we linked the fragment's properties
@@ -837,7 +837,7 @@ void ZilchShaderIRCompositor::GenerateBasicZilchComposite(StageLinkingInfo* curr
   // Emit each fragment variable, copy its inputs, then call its main
   for(size_t i = 0; i < currentStage->mFragmentTypes.Size(); ++i)
   {
-    ZilchShaderIRType* fragmentType = currentStage->mFragmentTypes[i];
+    ZilchShaderPtr fragmentType = currentStage->mFragmentTypes[i];
     FragmentLinkingInfo& linkInfo = currentStage->mFragmentLinkInfoMap[fragmentType];
 
     // Declare the fragment and copy its inputs
@@ -878,13 +878,13 @@ void ZilchShaderIRCompositor::GenerateGeometryZilchComposite(StageLinkingInfo* c
   ShaderCodeBuilder builder;
 
   // Grab all of the various fragment and stream types
-  ZilchShaderIRType* geometryFragmentType = currentStage->mPrimitiveTypes[0];
+  ZilchShaderPtr geometryFragmentType = currentStage->mPrimitiveTypes[0];
   Zilch::GeometryFragmentUserData* geometryUserData = geometryFragmentType->mZilchType->Has<Zilch::GeometryFragmentUserData>();
   Zilch::BoundType* zilchInputStreamType = geometryUserData->mInputStreamType->mZilchType;
   Zilch::BoundType* zilchOutputStreamType = geometryUserData->mOutputStreamType->mZilchType;
   Zilch::GeometryStreamUserData* inputStreamUserData = zilchInputStreamType->Has<Zilch::GeometryStreamUserData>();
   Zilch::GeometryStreamUserData* outputStreamUserData = zilchOutputStreamType->Has<Zilch::GeometryStreamUserData>();
-  ZilchShaderIRType* inputVertexType = geometryUserData->GetInputVertexType();
+  ZilchShaderPtr inputVertexType = geometryUserData->GetInputVertexType();
   StageAttachmentLinkingInfo& vertexLinkingInfo = currentStage->mVertexLinkingInfo;
 
   // Also get the max vertices count. @JoshD: Cleanup
@@ -975,7 +975,7 @@ void ZilchShaderIRCompositor::GenerateGeometryZilchComposite(StageLinkingInfo* c
 
 void ZilchShaderIRCompositor::GenerateComputeZilchComposite(StageLinkingInfo* currentStage, ShaderStageDescription& stageResults, ShaderIRAttributeList& extraAttributes)
 {
-  ZilchShaderIRType* computeFragmentType = currentStage->mFragmentTypes[0];
+  ZilchShaderPtr computeFragmentType = currentStage->mFragmentTypes[0];
   SpirVNameSettings& nameSettings = mSettings->mNameSettings;
 
   ShaderCodeBuilder builder;
@@ -1024,7 +1024,7 @@ void ZilchShaderIRCompositor::GenerateComputeZilchComposite(StageLinkingInfo* cu
   // Emit each fragment variable, copy its inputs, then call its main
   for(size_t i = 0; i < currentStage->mFragmentTypes.Size(); ++i)
   {
-    ZilchShaderIRType* fragmentType = currentStage->mFragmentTypes[i];
+    ZilchShaderPtr fragmentType = currentStage->mFragmentTypes[i];
     FragmentLinkingInfo& linkInfo = currentStage->mFragmentLinkInfoMap[fragmentType];
 
     // Declare the fragment and copy its inputs
@@ -1058,7 +1058,7 @@ void ZilchShaderIRCompositor::GenerateComputeZilchComposite(StageLinkingInfo* cu
   stageResults.mShaderCode = builder.ToString();
 }
 
-void ZilchShaderIRCompositor::CreateFragmentAndCopyInputs(StageLinkingInfo* currentStage, ShaderCodeBuilder& builder, StringParam currentClassName, ZilchShaderIRType* fragmentType, StringParam fragmentVarName)
+void ZilchShaderIRCompositor::CreateFragmentAndCopyInputs(StageLinkingInfo* currentStage, ShaderCodeBuilder& builder, StringParam currentClassName, ZilchShaderPtr fragmentType, StringParam fragmentVarName)
 {
   FragmentLinkingInfo& linkInfo = currentStage->mFragmentLinkInfoMap[fragmentType];
 
@@ -1187,7 +1187,7 @@ void ZilchShaderIRCompositor::GenerateStageDescriptions(CompositedShaderInfo& co
     for(size_t fragIndex = 0; fragIndex < currentStage->mFragmentTypes.Size(); ++fragIndex)
     {
       // Get the resultant linking info for the fragment
-      ZilchShaderIRType* fragType = currentStage->mFragmentTypes[fragIndex];
+      ZilchShaderPtr fragType = currentStage->mFragmentTypes[fragIndex];
       FragmentLinkingInfo* fragInfo = currentStage->mFragmentLinkInfoMap.FindPointer(fragType);
       if(fragInfo == nullptr)
         continue;
