@@ -1041,16 +1041,16 @@ namespace Zilch
   void ExecutableState::ForcePatchLibrary(LibraryParam newLibrary)
   {
     // If the library is the core, just early out (it will never change)
-    if (newLibrary == Core::GetInstance().GetLibrary())
+    if(newLibrary == Core::GetInstance().GetLibrary())
       return;
 
     // Figure out which old library we're currently patching (walk our dependencies)
     LibraryRef oldLibrary = nullptr;
-    for (size_t i = 0; i < this->Dependencies.Size(); ++i)
+    for(size_t i = 0; i < this->Dependencies.Size(); ++i)
     {
       // If any library has the same name as the one we're patching with, we'll patch it (otherwise skip it!)
       LibraryRef library = this->Dependencies[i];
-      if (library->Name == newLibrary->Name)
+      if(library->Name == newLibrary->Name)
       {
         oldLibrary = library;
         break;
@@ -1058,9 +1058,15 @@ namespace Zilch
     }
 
     // If we didn't find an old library to patch by name, then early out
-    if (oldLibrary == nullptr)
+    if(oldLibrary == nullptr)
       return;
 
+    ForcePatchLibrary(newLibrary, oldLibrary);
+  }
+
+  //***************************************************************************
+  void ExecutableState::ForcePatchLibrary(LibraryParam newLibrary, LibraryParam oldLibrary)
+  {
     // Increment the patch id, so that the user can re-enable certain features (for example, event connections)
     ++this->PatchId;
 
@@ -1257,6 +1263,14 @@ namespace Zilch
     // We cannot patch while an executable state is currently running
     ReturnIf(this->StackFrames.Size() > 1,, "Illegal to patch a library in an ExecutableState that has a running stack frame");
     this->ForcePatchLibrary(newLibrary);
+  }
+
+  //***************************************************************************
+  void ExecutableState::PatchLibrary(LibraryRef newLibrary, LibraryRef oldLibrary)
+  {
+    // We cannot patch while an executable state is currently running
+    ReturnIf(this->StackFrames.Size() > 1, , "Illegal to patch a library in an ExecutableState that has a running stack frame");
+    this->ForcePatchLibrary(newLibrary, oldLibrary);
   }
 
   //***************************************************************************

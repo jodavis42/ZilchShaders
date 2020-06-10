@@ -363,6 +363,7 @@ namespace Zilch
     // The executable state must not be running inside any code (no stack frame) and currently
     // the library must have no other libraries that depend upon it (a leaf library)
     void PatchLibrary(LibraryRef newLibrary);
+    void PatchLibrary(LibraryRef newLibrary, LibraryRef oldLibrary);
 
     // Set the timeout for this state in seconds (equivalent of a timeout statement in language)
     // Any code that runs for longer than this amount of time will throw an exception saying
@@ -495,6 +496,7 @@ namespace Zilch
 
     // Applies a patch, but skips some checks (used when we know patching a library is safe)
     void ForcePatchLibrary(LibraryParam newLibrary);
+    void ForcePatchLibrary(LibraryParam newLibrary, LibraryParam oldLibrary);
 
     // When a library is freed we need to erase all static fields from that library to prevent crashes in the executable state destructor
     void ClearStaticFieldsFromLibrary(Library* library);
