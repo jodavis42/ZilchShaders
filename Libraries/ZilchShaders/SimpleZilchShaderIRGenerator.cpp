@@ -566,7 +566,10 @@ bool SimpleZilchShaderIRGenerator::CompileAndTranslateFragments()
   fragmentDependencies->PushBack(mExtensionsLibraryRef);
 
   // Compile and translate the fragments project into a library
-  mFragmentLibraryRef = mFragmentProject.CompileAndTranslate(fragmentDependencies, mFrontEndTranslator);
+  auto newLibrary= mFragmentProject.CompileAndTranslate(fragmentDependencies, mFrontEndTranslator);
+  if(newLibrary == nullptr)
+    return false;
+  mFragmentLibraryRef = newLibrary;
   return mFragmentLibraryRef != nullptr;
 }
 
@@ -623,7 +626,10 @@ bool SimpleZilchShaderIRGenerator::CompileAndTranslateShaders()
   dependencies->PushBack(mFragmentLibraryRef);
 
   // Compile and translate the fragments project into a library
-  mShaderLibraryRef = mShaderProject.CompileAndTranslate(dependencies, mFrontEndTranslator);
+  auto newLibrary = mShaderProject.CompileAndTranslate(dependencies, mFrontEndTranslator);
+  if(newLibrary == nullptr)
+    return false;
+  mShaderLibraryRef = newLibrary;
   return mShaderLibraryRef != nullptr;
 }
 
