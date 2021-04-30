@@ -19,7 +19,30 @@ void DummyBoundFunction(Zilch::Call& call, Zilch::ExceptionReport& report);
 //-------------------------------------------------------------------Internal
 
 /// Helper struct to pass around groups of types for generating library translation
-struct TypeGroups
+struct ZilchTypeGroups
+{
+  Zilch::BoundType* mVoidType;
+
+  // Index 0 is Real1 (e.g. Real)
+  Array<Zilch::BoundType*> mRealVectorTypes;
+  Array<Zilch::BoundType*> mRealMatrixTypes;
+
+  Array<Zilch::BoundType*> mIntegerVectorTypes;
+  Array<Zilch::BoundType*> mBooleanVectorTypes;
+  Zilch::BoundType* mQuaternionType;
+  // SpirV does not support non-floating point matrix types
+  //Array<ZilchShaderIRType*> mIntegerMatrixTypes;
+
+  Zilch::BoundType* GetMatrixType(int y, int x)
+  {
+    y -= 2;
+    x -= 2;
+    return mRealMatrixTypes[x + y * 3];
+  }
+};
+
+/// Helper struct to pass around groups of types for generating library translation
+struct ShaderTypeGroups
 {
   ZilchShaderIRType* mVoidType;
 
@@ -41,16 +64,20 @@ struct TypeGroups
   }
 };
 
-void ResolveSimpleFunctionFromOpType(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* functionCallNode,
-  Zilch::MemberAccessNode* memberAccessNode, OpType opType,
-  ZilchSpirVFrontEndContext* context);
-
-
 // A simple helper to resolve a function (assumed to be value types) into calling a basic op function.
 template <OpType opType>
 inline void ResolveSimpleFunction(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* functionCallNode, Zilch::MemberAccessNode* memberAccessNode, ZilchSpirVFrontEndContext* context)
 {
-  ResolveSimpleFunctionFromOpType(translator, functionCallNode, memberAccessNode, opType, context);
+  ZilchShaderIRType* resultType = translator->FindType(functionCallNode->ResultType, functionCallNode);
+
+  ZilchShaderIROp* result = translator->BuildIROpNoBlockAdd(opType, resultType, context);
+  for(size_t i = 0; i < functionCallNode->Arguments.Size(); ++i)
+  {
+    ZilchShaderIROp* arg = translator->WalkAndGetValueTypeResult(functionCallNode->Arguments[i], context);
+    result->mArguments.PushBack(arg);
+  }
+  context->GetCurrentBlock()->AddOp(result);
+  context->PushIRStack(result);
 }
 
 void ResolveVectorTypeCount(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* functionCallNode, Zilch::MemberAccessNode* memberAccessNode, ZilchSpirVFrontEndContext* context);
@@ -99,14 +126,13 @@ void ResolveQuaternionSet(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNod
 void TranslateQuaternionSplatConstructor(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* fnCallNode, Zilch::StaticTypeNode* staticTypeNode, ZilchSpirVFrontEndContext* context);
 void TranslateBackupQuaternionConstructor(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* fnCallNode, Zilch::StaticTypeNode* staticTypeNode, ZilchSpirVFrontEndContext* context);
 
-void ResolveUnaryOp(ZilchSpirVFrontEnd* translator, Zilch::UnaryOperatorNode* unaryOpNode, OpType opType, ZilchSpirVFrontEndContext* context);
 void ResolveBinaryOp(ZilchSpirVFrontEnd* translator, Zilch::BinaryOperatorNode* binaryOpNode, OpType opType, ZilchSpirVFrontEndContext* context);
 void ResolveBinaryOp(ZilchSpirVFrontEnd* translator, Zilch::BinaryOperatorNode* binaryOpNode, OpType opType, IZilchShaderIR* lhs, IZilchShaderIR* rhs, ZilchSpirVFrontEndContext* context);
 
 template <OpType opType>
 inline void ResolveUnaryOperator(ZilchSpirVFrontEnd* translator, Zilch::UnaryOperatorNode* unaryOpNode, ZilchSpirVFrontEndContext* context)
 {
-  ResolveUnaryOp(translator, unaryOpNode, opType, context);
+  translator->PerformUnaryOp(unaryOpNode, opType, context);
 }
 
 template <OpType opType>
@@ -120,14 +146,14 @@ void ResolveIsLanguage(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* 
 void ResolveIsLanguageMinMaxVersion(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* functionCallNode, Zilch::MemberAccessNode* memberAccessNode, ZilchSpirVFrontEndContext* context);
 
 void ResolveStaticBinaryFunctionOp(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* functionCallNode, OpType opType, ZilchSpirVFrontEndContext* context);
-void RegisterArithmeticOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, TypeGroups& types);
-void RegisterConversionOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, TypeGroups& types);
-void RegisterLogicalOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, TypeGroups& types);
-void RegisterBitOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, TypeGroups& types);
-void RegisterGlsl450Extensions(ZilchShaderIRLibrary* shaderLibrary, SpirVExtensionLibrary* extLibrary, TypeGroups& types);
-void AddGlslExtensionIntrinsicOps(Zilch::LibraryBuilder& builder, SpirVExtensionLibrary* extLibrary, Zilch::BoundType* type, TypeGroups& types);
+void RegisterArithmeticOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, ZilchTypeGroups& types);
+void RegisterConversionOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, ZilchTypeGroups& types);
+void RegisterLogicalOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, ZilchTypeGroups& types);
+void RegisterBitOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, ZilchTypeGroups& types);
+void RegisterGlsl450Extensions(ZilchShaderIRLibrary* shaderLibrary, SpirVExtensionLibrary* extLibrary, ZilchTypeGroups& types);
+void AddGlslExtensionIntrinsicOps(Zilch::LibraryBuilder& builder, SpirVExtensionLibrary* extLibrary, Zilch::BoundType* type, ZilchTypeGroups& types);
 void RegisterShaderIntrinsics(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary);
-void RegisterColorsOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, TypeGroups& types);
+void RegisterColorsOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, ZilchTypeGroups& types);
 void FixedArrayResolver(ZilchSpirVFrontEnd* translator, Zilch::BoundType* zilchFixedArrayType);
 void RuntimeArrayResolver(ZilchSpirVFrontEnd* translator, Zilch::BoundType* zilchRuntimeArrayType);
 void GeometryStreamInputResolver(ZilchSpirVFrontEnd* translator, Zilch::BoundType* zilchFixedArrayType);

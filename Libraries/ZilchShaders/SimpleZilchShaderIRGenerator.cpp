@@ -20,7 +20,7 @@ void SimplifiedShaderReflectionData::CreateReflectionData(ZilchShaderIRLibrary* 
   CreateSimpleOpaqueTypeReflectionData(shaderLibrary, stageDef, passResults);
 }
 
-const ShaderResourceReflectionData* SimplifiedShaderReflectionData::FindUniformReflectionData(const ZilchShaderIRType* fragmentType, StringParam propertyName) const
+ShaderResourceReflectionData* SimplifiedShaderReflectionData::FindUniformReflectionData(ZilchShaderIRType* fragmentType, StringParam propertyName)
 {
   String fragmentName = fragmentType->mMeta->mZilchName;
   // Find the fragment's lookup data
@@ -39,7 +39,7 @@ const ShaderResourceReflectionData* SimplifiedShaderReflectionData::FindUniformR
     return nullptr;
 
   // Finally, index into the target uniform buffer to get the member data
-  const ShaderStageResource& uniformBuffer = mReflection.mUniforms[uniformBufferIndex];
+  ShaderStageResource& uniformBuffer = mReflection.mUniforms[uniformBufferIndex];
   size_t memberIndex = uniformData->mMemberIndex;
   if(memberIndex >= uniformBuffer.mMembers.Size())
     return nullptr;
@@ -47,7 +47,7 @@ const ShaderResourceReflectionData* SimplifiedShaderReflectionData::FindUniformR
   return &uniformBuffer.mMembers[memberIndex];
 }
 
-void SimplifiedShaderReflectionData::FindSampledImageReflectionData(const ZilchShaderIRType* fragmentType, StringParam propertyName, Array<const ShaderResourceReflectionData*>& results) const
+void SimplifiedShaderReflectionData::FindSampledImageReflectionData(ZilchShaderIRType* fragmentType, StringParam propertyName, Array<ShaderResourceReflectionData*>& results)
 {
   FragmentLookup* fragmentLookup = mFragmentLookup.FindPointer(fragmentType->mMeta->mZilchName);
   if(fragmentLookup == nullptr)
@@ -56,7 +56,7 @@ void SimplifiedShaderReflectionData::FindSampledImageReflectionData(const ZilchS
   PopulateSamplerAndImageData(fragmentLookup->mSampledImages, propertyName, results);
 }
 
-void SimplifiedShaderReflectionData::FindImageReflectionData(const ZilchShaderIRType* fragmentType, StringParam propertyName, Array<const ShaderResourceReflectionData*>& results) const
+void SimplifiedShaderReflectionData::FindImageReflectionData(ZilchShaderIRType* fragmentType, StringParam propertyName, Array<ShaderResourceReflectionData*>& results)
 {
   FragmentLookup* fragmentLookup = mFragmentLookup.FindPointer(fragmentType->mMeta->mZilchName);
   if(fragmentLookup == nullptr)
@@ -65,7 +65,7 @@ void SimplifiedShaderReflectionData::FindImageReflectionData(const ZilchShaderIR
   PopulateSamplerAndImageData(fragmentLookup->mImages, propertyName, results);
 }
 
-void SimplifiedShaderReflectionData::FindSamplerReflectionData(const ZilchShaderIRType* fragmentType, StringParam propertyName, Array<const ShaderResourceReflectionData*>& results) const
+void SimplifiedShaderReflectionData::FindSamplerReflectionData(ZilchShaderIRType* fragmentType, StringParam propertyName, Array<ShaderResourceReflectionData*>& results)
 {
   FragmentLookup* fragmentLookup = mFragmentLookup.FindPointer(fragmentType->mMeta->mZilchName);
   if(fragmentLookup == nullptr)
@@ -74,7 +74,7 @@ void SimplifiedShaderReflectionData::FindSamplerReflectionData(const ZilchShader
   PopulateSamplerAndImageData(fragmentLookup->mSamplers, propertyName, results);
 }
 
-const ShaderResourceReflectionData* SimplifiedShaderReflectionData::FindStorageImage(const ZilchShaderIRType* fragmentType, StringParam propertyName) const
+ShaderResourceReflectionData* SimplifiedShaderReflectionData::FindStorageImage(ZilchShaderIRType* fragmentType, StringParam propertyName)
 {
   FragmentLookup* fragmentLookup = mFragmentLookup.FindPointer(fragmentType->mMeta->mZilchName);
   if(fragmentLookup == nullptr)
@@ -88,7 +88,7 @@ const ShaderResourceReflectionData* SimplifiedShaderReflectionData::FindStorageI
   return &mReflection.mStorageImages[storageImageData->mIndex].mReflectionData;
 }
 
-const ShaderResourceReflectionData* SimplifiedShaderReflectionData::FindStructedStorageBuffer(const ZilchShaderIRType* fragmentType, StringParam propertyName) const
+ShaderResourceReflectionData* SimplifiedShaderReflectionData::FindStructedStorageBuffer(ZilchShaderIRType* fragmentType, StringParam propertyName)
 {
   FragmentLookup* fragmentLookup = mFragmentLookup.FindPointer(fragmentType->mMeta->mZilchName);
   if(fragmentLookup == nullptr)
@@ -378,7 +378,7 @@ void SimplifiedShaderReflectionData::BuildFinalSampledImageMappings(SampledImage
   }
 }
 
-void SimplifiedShaderReflectionData::PopulateSamplerAndImageData(HashMap<String, SampledImageRemappingData>& searchMap, StringParam propertyName, Array<const ShaderResourceReflectionData*>& results) const
+void SimplifiedShaderReflectionData::PopulateSamplerAndImageData(HashMap<String, SampledImageRemappingData>& searchMap, StringParam propertyName, Array<ShaderResourceReflectionData*>& results)
 {
   // Find the property in the given search map
   SampledImageRemappingData* remapData = searchMap.FindPointer(propertyName);
@@ -695,7 +695,7 @@ ZilchShaderIRType* SimpleZilchShaderIRGenerator::FindShaderType(StringParam type
   return shaderLibrary->FindType(typeName, false);
 }
 
-ShaderTranslationPassResult* SimpleZilchShaderIRGenerator::FindTranslationResult(const ZilchShaderIRType* shaderType)
+ShaderTranslationPassResult* SimpleZilchShaderIRGenerator::FindTranslationResult(ZilchShaderIRType* shaderType)
 {
   ShaderTranslationResult* translationResult = mShaderResults.FindPointer(shaderType->mMeta->mZilchName);
   if(translationResult == nullptr)
@@ -704,7 +704,7 @@ ShaderTranslationPassResult* SimpleZilchShaderIRGenerator::FindTranslationResult
   return translationResult->mFinalPassData;
 }
 
-SimplifiedShaderReflectionData* SimpleZilchShaderIRGenerator::FindSimplifiedReflectionResult(const ZilchShaderIRType* shaderType)
+SimplifiedShaderReflectionData* SimpleZilchShaderIRGenerator::FindSimplifiedReflectionResult(ZilchShaderIRType* shaderType)
 {
   ShaderTranslationResult* translationResult = mShaderResults.FindPointer(shaderType->mMeta->mZilchName);
   if(translationResult == nullptr)

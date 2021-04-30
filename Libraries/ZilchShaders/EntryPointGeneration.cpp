@@ -2129,6 +2129,8 @@ void EntryPointGeneration::DecorateImagesAndSamplers(TypeDependencyCollector& co
     }
     else if(baseType == ShaderIRTypeBaseType::SampledImage)
     {
+      // Sampled images are special as they use an image and sampler id.
+      // We need to find an id that is empty in both the sampler and image sets.
       resourceBindingId = FindBindingId();
       resourceInfo = &stageReflectionData.mSampledImages.PushBack();
       remappings = &stageReflectionData.mSampledImageRemappings[resourceName];

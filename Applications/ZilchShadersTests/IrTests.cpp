@@ -331,7 +331,7 @@ void TestCompositeDefinition(SimpleZilchShaderIRGenerator& shaderGenerator, Shad
   resultShader.mExtraAttributes.AddAttribute(shaderGenerator.mSettings->mNameSettings.mUnitTestAttribute, nullptr);
 
   // Look up all fragments in the def by name
-  Array<const ZilchShaderIRType*>& fragments = resultShader.mFragments;
+  Array<ZilchShaderIRType*>& fragments = resultShader.mFragments;
   for(size_t i = 0; i < shaderDef.mFragmentNames.Size(); ++i)
   {
     ZilchShaderIRType* fragmentType = libraryRef->FindType(shaderDef.mFragmentNames[i]);

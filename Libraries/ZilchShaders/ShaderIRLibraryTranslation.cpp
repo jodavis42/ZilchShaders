@@ -28,23 +28,6 @@ void DummyBoundFunction(Zilch::Call& call, Zilch::ExceptionReport& report)
   call.MarkReturnAsSet();
 }
 
-void ResolveSimpleFunctionFromOpType(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* functionCallNode,
-                                     Zilch::MemberAccessNode* memberAccessNode, OpType opType,
-                                     ZilchSpirVFrontEndContext* context)
-{
-  ZilchShaderIRType* resultType = translator->FindType(functionCallNode->ResultType, functionCallNode);
-
-  ZilchShaderIROp* result = translator->BuildIROpNoBlockAdd(opType, resultType, context);
-  for(size_t i = 0; i < functionCallNode->Arguments.Size(); ++i)
-  {
-    ZilchShaderIROp* arg = translator->WalkAndGetValueTypeResult(functionCallNode->Arguments[i], context);
-    result->mArguments.PushBack(arg);
-  }
-  context->GetCurrentBlock()->AddOp(result);
-  context->PushIRStack(result);
-}
-
-
 void ResolveVectorTypeCount(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* functionCallNode, Zilch::MemberAccessNode* memberAccessNode, ZilchSpirVFrontEndContext* context)
 {
   Zilch::Type* selfType = memberAccessNode->LeftOperand->ResultType;
@@ -848,7 +831,7 @@ void ResolveColor(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallNode* /*fun
   context->PushIRStack(constructOp);
 }
 
-void RegisterColorsOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, TypeGroups& types)
+void RegisterColorsOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, ZilchTypeGroups& types)
 {
   Zilch::Core& core = Zilch::Core::GetInstance();
   Zilch::Library* coreLibrary = core.GetLibrary();

@@ -82,7 +82,7 @@ public:
     /// The base name to use for the composited shader. Must be unique within a library dependency chain.
     String mShaderName;
     /// The input fragments to composite together.
-    Array<const ZilchShaderIRType*> mFragments;
+    Array<ZilchShaderIRType*> mFragments;
     /// The resultant shader stages. This includes the composited zilch shader
     /// and the description of each fragment that was used to create the shader.
     ShaderStageDescription mResults[FragmentType::Size];
@@ -110,8 +110,6 @@ public:
   bool CompositeCompute(ShaderDefinition& shaderDef, ComputeShaderProperties* computeProperties, const ShaderCapabilities& capabilities, ZilchShaderSpirVSettingsRef& settings);
 
   //-------------------------------------------------------------------Internal
-  using ZilchShaderPtr = const ZilchShaderIRType*;
-  using ZilchShaderPtrArray = Array<const ZilchShaderIRType*>;
   struct StageLinkingInfo;
   struct CompositedShaderInfo;
   struct ResolvedFieldInfo;
@@ -121,14 +119,14 @@ public:
   struct ExpectedOutputData;
 
   
-  void CollectFragmentsPerStage(ZilchShaderPtrArray& inputFragments, CompositedShaderInfo& compositeInfo);
+  void CollectFragmentsPerStage(Array<ZilchShaderIRType*>& inputFragments, CompositedShaderInfo& compositeInfo);
   bool ValidateStages(CompositedShaderInfo& compositeInfo);
   void CollectExpectedOutputs(CompositedShaderInfo& compositeInfo);
-  void CollectExpectedOutputs(ZilchShaderPtrArray& fragmentTypes, StageAttachmentLinkingInfo& linkingInfo);
+  void CollectExpectedOutputs(Array<ZilchShaderIRType*>& fragmentTypes, StageAttachmentLinkingInfo& linkingInfo);
   void CreateCpuStage(CompositedShaderInfo& compositeInfo);
 
   void ResolveInputs(StageLinkingInfo* previousStage, StageLinkingInfo* currentStage);
-  void Link(StageAttachmentLinkingInfo& prevStageInfo, StageLinkingInfo* currentStage, ZilchShaderPtrArray& fragmentTypes, StageAttachmentLinkingInfo& currStageInfo);
+  void Link(StageAttachmentLinkingInfo& prevStageInfo, StageLinkingInfo* currentStage, Array<ZilchShaderIRType*>& fragmentTypes, StageAttachmentLinkingInfo& currStageInfo);
   void AddStageInput(ExpectedOutputData* previousStageOutputData, StageAttachmentLinkingInfo* currentStage, StringParam fieldVarName, StringParam fieldAttributeName);
   ShaderIRFieldMeta* FindUniform(ShaderFieldKey& fieldKey, FragmentType::Enum fragmentType);
   ShaderIRFieldMeta* FindHardwareBuiltInInput(ShaderFieldKey& fieldKey, FragmentType::Enum fragmentType);
@@ -145,7 +143,7 @@ public:
   void GenerateBasicZilchComposite(StageLinkingInfo* currentStage, ShaderStageDescription& stageResults, ShaderIRAttributeList& extraAttributes);
   void GenerateGeometryZilchComposite(StageLinkingInfo* currentStage, ShaderStageDescription& stageResults, ShaderIRAttributeList& extraAttributes);
   void GenerateComputeZilchComposite(StageLinkingInfo* currentStage, ShaderStageDescription& stageResults, ShaderIRAttributeList& extraAttributes);
-  void CreateFragmentAndCopyInputs(StageLinkingInfo* currentStage, ShaderCodeBuilder& builder, StringParam currentClassName, ZilchShaderPtr fragmentType, StringParam fragmentVarName);
+  void CreateFragmentAndCopyInputs(StageLinkingInfo* currentStage, ShaderCodeBuilder& builder, StringParam currentClassName, ZilchShaderIRType* fragmentType, StringParam fragmentVarName);
   void DeclareFieldsInOrder(ShaderCodeBuilder& builder, StageAttachmentLinkingInfo& linkingInfo, OrderedHashSet<ShaderFieldKey>& orderMap);
   void DeclareFieldsWithAttribute(ShaderCodeBuilder& builder, StageAttachmentLinkingInfo& linkingInfo, OrderedHashSet<ShaderFieldKey>& fieldSet, StringParam attributeName);
   String MakeFragmentVarName(ShaderIRTypeMeta* typeMeta);
@@ -284,17 +282,17 @@ public:
     void Clear();
 
     /// All fragments belonging to the current stage.
-    ZilchShaderPtrArray mFragmentTypes;
+    Array<ZilchShaderIRType*> mFragmentTypes;
     /// Vertex types are types that transfer vertex data via the standard rendering pipeline.
     /// This is the all vertex fragments, all pixel fragments, and the input/output types for the geometry streams.
     /// Input/Output are split due to having separate input/output resolution for geometry stages (and later tessellation).
-    ZilchShaderPtrArray mInputVertexTypes;
-    ZilchShaderPtrArray mOutputVertexTypes;
+    Array<ZilchShaderIRType*> mInputVertexTypes;
+    Array<ZilchShaderIRType*> mOutputVertexTypes;
     /// Any fragments that transfer data for a primitive. This is the primary geometry fragment (and later tessellation).
-    ZilchShaderPtrArray mPrimitiveTypes;
+    Array<ZilchShaderIRType*> mPrimitiveTypes;
     
     /// Describes what each fragment's inputs were resolved to.
-    HashMap<ZilchShaderPtr, FragmentLinkingInfo> mFragmentLinkInfoMap;
+    HashMap<ZilchShaderIRType*, FragmentLinkingInfo> mFragmentLinkInfoMap;
 
     /// Linking information for the vertex and primitive data.
     /// This describes what the input/outputs are for this stage.

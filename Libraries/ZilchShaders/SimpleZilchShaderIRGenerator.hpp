@@ -101,17 +101,17 @@ public:
   void CreateReflectionData(ZilchShaderIRLibrary* shaderLibrary, ShaderStageDescription& stageDef, Array<PassResultRef>& passResults);
 
   /// Find the reflection data for a uniform given the fragment and property. Returns null if the property can't be found.
-  const ShaderResourceReflectionData* FindUniformReflectionData(const ZilchShaderIRType* fragmentType, StringParam propertyName) const;
+  ShaderResourceReflectionData* FindUniformReflectionData(ZilchShaderIRType* fragmentType, StringParam propertyName);
   /// Finds all potential images, samplers, and sampled images that the given SampledImage property results in.
-  void FindSampledImageReflectionData(const ZilchShaderIRType* fragmentType, StringParam propertyName, Array<const ShaderResourceReflectionData*>& results) const;
+  void FindSampledImageReflectionData(ZilchShaderIRType* fragmentType, StringParam propertyName, Array<ShaderResourceReflectionData*>& results);
   /// Finds all potential images and sampled images that the given Image property results in.
-  void FindImageReflectionData(const ZilchShaderIRType* fragmentType, StringParam propertyName, Array<const ShaderResourceReflectionData*>& results) const;
+  void FindImageReflectionData(ZilchShaderIRType* fragmentType, StringParam propertyName, Array<ShaderResourceReflectionData*>& results);
   /// Finds all potential samplers and sampled images that the given Sampler property results in.
-  void FindSamplerReflectionData(const ZilchShaderIRType* fragmentType, StringParam propertyName, Array<const ShaderResourceReflectionData*>& results) const;
+  void FindSamplerReflectionData(ZilchShaderIRType* fragmentType, StringParam propertyName, Array<ShaderResourceReflectionData*>& results);
   /// Find the reflection data for a storage image given the fragment and property. Returns null if the property can't be found.
-  const ShaderResourceReflectionData* FindStorageImage(const ZilchShaderIRType* fragmentType, StringParam propertyName) const;
+  ShaderResourceReflectionData* FindStorageImage(ZilchShaderIRType* fragmentType, StringParam propertyName);
   /// Find the reflection data for a structed storage buffer given the fragment and property. Returns null if the property can't be found.
-  const ShaderResourceReflectionData* FindStructedStorageBuffer(const ZilchShaderIRType* fragmentType, StringParam propertyName) const;
+  ShaderResourceReflectionData* FindStructedStorageBuffer(ZilchShaderIRType* fragmentType, StringParam propertyName);
 
   /// Map lookup of fragment name to property information about the fragment.
   HashMap<String, FragmentLookup> mFragmentLookup;
@@ -144,7 +144,7 @@ private:
   void BuildFinalSampledImageMappings(SampledImageRemappings* resourceMappings, NameToIndexMap& samplerIndices, NameToIndexMap& imageIndices, NameToIndexMap& sampledImageIndices, SampledImageRemappingData& results);
 
   /// Fills out information for an individual search map (e.g. sampler/image) given the property name.
-  void PopulateSamplerAndImageData(HashMap<String, SampledImageRemappingData>& searchMap, StringParam propertyName, Array<const ShaderResourceReflectionData*>& results) const;
+  void PopulateSamplerAndImageData(HashMap<String, SampledImageRemappingData>& searchMap, StringParam propertyName, Array<ShaderResourceReflectionData*>& results);
 
   /// Create reflectiond ata for simple opaque types (e.g. storage image and ssbos).
   void CreateSimpleOpaqueTypeReflectionData(ZilchShaderIRLibrary* shaderLibrary, ShaderStageDescription& stageDef, Array<PassResultRef>& passResults);
@@ -212,9 +212,9 @@ public:
   /// Find a the shader type for a shader by name. Only checks the shader library.
   ZilchShaderIRType* FindShaderType(StringParam typeName);
   /// Finds the translation result (byte data + reflection data) for a shader.
-  ShaderTranslationPassResult* FindTranslationResult(const ZilchShaderIRType* shaderType);
+  ShaderTranslationPassResult* FindTranslationResult(ZilchShaderIRType* shaderType);
   /// Finds the cached simplified reflection data for a shader.
-  SimplifiedShaderReflectionData* FindSimplifiedReflectionResult(const ZilchShaderIRType* shaderType);
+  SimplifiedShaderReflectionData* FindSimplifiedReflectionResult(ZilchShaderIRType* shaderType);
 
   //-------------------------------------------------------------------Settings
   /// Load default name settings

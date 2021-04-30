@@ -9,11 +9,6 @@
 namespace Zero
 {
 
-void ResolveUnaryOp(ZilchSpirVFrontEnd* translator, Zilch::UnaryOperatorNode* unaryOpNode, OpType opType, ZilchSpirVFrontEndContext* context)
-{
-  translator->PerformUnaryOp(unaryOpNode, opType, context);
-}
-
 // Resolves a binary operator node given the expected return type.
 void ResolveBinaryOp(ZilchSpirVFrontEnd* translator, Zilch::BinaryOperatorNode* binaryOpNode, OpType opType, ZilchSpirVFrontEndContext* context)
 {
@@ -124,7 +119,7 @@ void ResolveMatrixTranspose(ZilchSpirVFrontEnd* translator, Zilch::FunctionCallN
 }
 
 // Register function callbacks for the various arithmetic operators (see Arithmetic Instructions in the spir-v spec).
-void RegisterArithmeticOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, TypeGroups& types)
+void RegisterArithmeticOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary* shaderLibrary, ZilchTypeGroups& types)
 {
   Zilch::Core& core = Zilch::Core::GetInstance();
   Zilch::BoundType* mathType = core.MathType;
@@ -142,7 +137,7 @@ void RegisterArithmeticOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary*
   // Register ops that are on all float vector types
   for(size_t i = 0; i < types.mRealVectorTypes.Size(); ++i)
   {
-    Zilch::BoundType* zilchType = types.mRealVectorTypes[i]->mZilchType;
+    Zilch::BoundType* zilchType = types.mRealVectorTypes[i];
     String zilchTypeName = zilchType->ToString();
 
     opResolvers.RegisterBinaryOpResolver(zilchType, zilchType, Zilch::Grammar::AssignmentAdd, ResolveBinaryOperator<spv::OpFAdd>);
@@ -165,7 +160,7 @@ void RegisterArithmeticOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary*
   // Register ops that are only on float vector types (no scalars). Some of these are because of zilch and not spirv.
   for(size_t i = 1; i < types.mRealVectorTypes.Size(); ++i)
   {
-    Zilch::BoundType* zilchType = types.mRealVectorTypes[i]->mZilchType;
+    Zilch::BoundType* zilchType = types.mRealVectorTypes[i];
     String zilchTypeName = zilchType->ToString();
 
     mathTypeResolver.RegisterFunctionResolver(GetStaticFunction(mathType, "Dot", zilchTypeName, zilchTypeName), ResolveDot);
@@ -179,7 +174,7 @@ void RegisterArithmeticOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary*
   // Register ops that are on all integer vector types
   for(size_t i = 0; i < types.mIntegerVectorTypes.Size(); ++i)
   {
-    Zilch::BoundType* zilchType = types.mIntegerVectorTypes[i]->mZilchType;
+    Zilch::BoundType* zilchType = types.mIntegerVectorTypes[i];
     String zilchTypeName = zilchType->ToString();
 
     opResolvers.RegisterBinaryOpResolver(zilchType, zilchType, Zilch::Grammar::AssignmentAdd, ResolveBinaryOperator<spv::OpIAdd>);
@@ -202,7 +197,7 @@ void RegisterArithmeticOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary*
   // Some could be supported using more complicated instructions (e.g. vector * scalar = vector * vector(scalar))
   for(size_t i = 1; i < types.mIntegerVectorTypes.Size(); ++i)
   {
-    Zilch::BoundType* zilchType = types.mIntegerVectorTypes[i]->mZilchType;
+    Zilch::BoundType* zilchType = types.mIntegerVectorTypes[i];
     String zilchTypeName = zilchType->ToString();
 
     // VectorTimesScalar is only on real types
@@ -216,9 +211,9 @@ void RegisterArithmeticOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary*
   {
     for(u32 x = 2; x <= 4; ++x)
     {
-      Zilch::BoundType* zilchType = types.GetMatrixType(y, x)->mZilchType;
+      Zilch::BoundType* zilchType = types.GetMatrixType(y, x);
       String zilchTypeName = zilchType->ToString();
-      Zilch::BoundType* vectorType = types.mRealVectorTypes[x - 1]->mZilchType;
+      Zilch::BoundType* vectorType = types.mRealVectorTypes[x - 1];
 
       opResolvers.RegisterBinaryOpResolver(zilchType, zilchType, Zilch::Grammar::Multiply, ResolveBinaryOperator<spv::OpMatrixTimesScalar>);
       mathTypeResolver.RegisterFunctionResolver(GetStaticFunction(mathType, "Transpose", zilchTypeName), ResolveMatrixTranspose);
@@ -229,7 +224,7 @@ void RegisterArithmeticOps(ZilchSpirVFrontEnd* translator, ZilchShaderIRLibrary*
       // (e.g. Real2x3 * real3x2, Real2x3 * Real3x3, etc...)
       for(u32 z = 2; z <= 4; ++z)
       {
-        Zilch::BoundType* rhsMatrixType = types.GetMatrixType(x, z)->mZilchType;
+        Zilch::BoundType* rhsMatrixType = types.GetMatrixType(x, z);
         mathTypeResolver.RegisterFunctionResolver(GetStaticFunction(mathType, "Multiply", zilchTypeName, rhsMatrixType->ToString()), ResolveMatrixTimesMatrix);
       }
     }
