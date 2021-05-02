@@ -7,9 +7,18 @@
 #include "Precompiled.hpp"
 
 #include "ShaderErrors.hpp"
+#include "ZilchShaders/Enums/ImageEnums.hpp"
 
 namespace Zilch
 {
+
+ZilchDefineEnum(Zero::ImageDimension);
+ZilchDefineEnum(Zero::ImageDepthMode);
+ZilchDefineEnum(Zero::ImageArrayedMode);
+ZilchDefineEnum(Zero::ImageMultiSampledMode);
+ZilchDefineEnum(Zero::ImageSampledMode);
+ZilchDefineEnum(Zero::ImageFormat);
+ZilchDefineEnum(Zero::ImageOperands);
 
 BoundType* InstantiateFixedArray(LibraryBuilder& builder, StringParam baseName, StringParam fullyQualifiedName, const Array<Constant>& templateTypes, const void* userData)
 {
@@ -105,6 +114,14 @@ ZilchDefineStaticLibrary(ShaderIntrinsicsLibrary)
   ZilchInitializeType(GeometryStreamUserData);
   ZilchInitializeType(GeometryFragmentUserData);
   ZilchInitializeType(ComputeFragmentUserData);
+
+  ZilchInitializeExternalTypeAs(Zero::ImageDimension::Enum, "ImageDimension");
+  ZilchInitializeExternalTypeAs(Zero::ImageDepthMode::Enum, "ImageDepthMode");
+  ZilchInitializeExternalTypeAs(Zero::ImageArrayedMode::Enum, "ImageArrayedMode");
+  ZilchInitializeExternalTypeAs(Zero::ImageMultiSampledMode::Enum, "ImageMultiSampledMode");
+  ZilchInitializeExternalTypeAs(Zero::ImageSampledMode::Enum, "ImageSampledMode");
+  ZilchInitializeExternalTypeAs(Zero::ImageFormat::Enum, "ImageFormat");
+  ZilchInitializeExternalTypeAs(Zero::ImageOperands::Enum, "ImageOperands");
 
   // @Nate: These have to be uncommented for new shaders
   ZilchInitializeType(ShaderIntrinsics);
