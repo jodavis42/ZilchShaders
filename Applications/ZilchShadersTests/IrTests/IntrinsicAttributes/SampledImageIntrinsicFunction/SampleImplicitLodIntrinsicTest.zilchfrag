@@ -1,0 +1,43 @@
+[SamplerPrimitive]
+struct MySampler
+{
+}
+
+[ImagePrimitive(sampledType : typeid(Real), dimension : ImageDimension.Dim2D, imageFormat : ImageFormat.Unknown)]
+struct RealImage2d
+{
+}
+
+[SampledImagePrimitive(imageType : typeid(RealImage2d))]
+struct RealSampledImage2d
+{
+  [Static][SampledImageIntrinsicFunction(opName : "OpImageSampleImplicitLod")]
+  function SampleImplicitLod(sampledImage : ref RealSampledImage2d, coordinates : Real2) : Real4
+  {
+    return Real4();
+  }
+}
+
+struct ShaderIntrinsicsExtensions
+{
+  [Static][SampledImageIntrinsicFunction(opName : "OpImageSampleImplicitLod")]
+  function SampleImplicitLod(image : ref RealImage2d, sampler : ref MySampler, coordinates : Real2) : Real4
+  {
+    return Real4();
+  }
+}
+
+[UnitTest][Pixel]
+struct SampleImplicitLodIntrinsicTest
+{
+  var Image : RealImage2d;
+  var SampledImage : RealSampledImage2d;
+  var Sampler : MySampler;
+  [EntryPoint]
+  function Main()
+  {
+    var r2 = Real2();
+    var r4 = RealSampledImage2d.SampleImplicitLod(&this.SampledImage, r2);
+    r4 = ShaderIntrinsicsExtensions.SampleImplicitLod(&this.Image, &this.Sampler, r2);
+  }
+}

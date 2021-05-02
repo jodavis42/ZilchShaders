@@ -1,0 +1,45 @@
+[SamplerPrimitive]
+struct MySampler
+{
+}
+
+[ImagePrimitive(sampledType : typeid(Integer), dimension : ImageDimension.Dim3D, imageFormat : ImageFormat.Unknown)]
+struct IntImage3d
+{
+}
+
+[SampledImagePrimitive(imageType : typeid(IntImage3d))]
+struct IntSampledImage3d
+{
+  [Static][SampledImageIntrinsicFunction(opName : "OpImageSampleProjExplicitLod", operands : ImageOperands.Lod, operandsLocation : 2)]
+  function SampleProjExplicitLod(sampledImage : ref IntSampledImage3d, coordinates : Real4, lod : Real) : Integer4
+  {
+    return Integer4();
+  }
+}
+
+struct ShaderIntrinsicsExtensions
+{
+  [Static][SampledImageIntrinsicFunction(opName : "OpImageSampleProjExplicitLod", operands : ImageOperands.Lod, operandsLocation : 3)]
+  function SampleProjExplicitLod(image : ref IntImage3d, sampler : ref MySampler, coordinates : Real4, lod : Real) : Integer4
+  {
+    return Integer4();
+  }
+}
+
+[UnitTest][Pixel]
+struct ImageSampleProjExplicitLodTest
+{
+  var Image : IntImage3d;
+  var SampledImage : IntSampledImage3d;
+  var Sampler : MySampler;
+
+  [EntryPoint]
+  function Main()
+  {
+    var r4 = Real4();
+    var lod = 1.0;
+    var i4 = IntSampledImage3d.SampleProjExplicitLod(&this.SampledImage, r4, lod);
+    i4 = ShaderIntrinsicsExtensions.SampleProjExplicitLod(&this.Image, &this.Sampler, r4, lod);
+  }
+}

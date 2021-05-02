@@ -720,6 +720,15 @@ void SimpleZilchShaderIRGenerator::LoadNameSettings(SpirVNameSettings& nameSetti
   nameSettings.mAllowedClassAttributes.Insert("PostProcess", AttributeInfo(true));
   nameSettings.mAllowedClassAttributes.Insert("RenderPass", AttributeInfo(true));
   nameSettings.mAllowedClassAttributes.Insert("CoreVertex", AttributeInfo(true));
+
+  AttributeInfo uncheckedAttributeInfo(true);
+  uncheckedAttributeInfo.mCheckSignature = false;
+  nameSettings.mAllowedClassAttributes.Insert(nameSettings.mSamplerPrimitiveAttribute, uncheckedAttributeInfo);
+  nameSettings.mAllowedClassAttributes.Insert(nameSettings.mImagePrimitiveAttribute, uncheckedAttributeInfo);
+  nameSettings.mAllowedClassAttributes.Insert(nameSettings.mSampledImagePrimitiveAttribute, uncheckedAttributeInfo);
+  nameSettings.mAllowedFunctionAttributes.Insert(nameSettings.mImageIntrinsicFunctionAttribute, uncheckedAttributeInfo);
+  nameSettings.mAllowedFunctionAttributes.Insert(nameSettings.mSampledImageIntrinsicFunctionAttribute, uncheckedAttributeInfo);
+  nameSettings.mAllowedFunctionAttributes.Insert(nameSettings.mSimpleExtensionIntrinsicFunctionAttribute, uncheckedAttributeInfo);
 }
 
 ZilchShaderSpirVSettings* SimpleZilchShaderIRGenerator::CreateUnitTestSettings(SpirVNameSettings& nameSettings)

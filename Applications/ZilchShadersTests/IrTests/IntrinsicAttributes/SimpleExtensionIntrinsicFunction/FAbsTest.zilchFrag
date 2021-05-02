@@ -1,0 +1,19 @@
+struct ShaderIntrinsicsExtensions
+{
+  [Static][SimpleExtensionIntrinsicFunction(extensionName : "GLSL.std.450", opName : "FAbs")]
+  function FAbs(a : Real2) : Real2
+  {
+    return Real2();
+  }
+}
+
+[UnitTest][Pixel]
+struct FabsTest
+{
+  [EntryPoint]
+  function Main()
+  {
+    var r2 = Real2();
+    var r = ShaderIntrinsicsExtensions.FAbs(r2);
+  }
+}

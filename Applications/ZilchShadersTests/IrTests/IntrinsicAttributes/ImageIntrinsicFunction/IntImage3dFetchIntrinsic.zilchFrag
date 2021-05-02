@@ -1,0 +1,39 @@
+[ImagePrimitive(sampledType : typeid(Integer), dimension : ImageDimension.Dim3D, imageFormat : ImageFormat.Unknown)]
+struct IntImage3d
+{
+}
+
+[SampledImagePrimitive(imageType : typeid(IntImage3d))]
+struct IntSampledImage3d
+{
+}
+
+struct ShaderIntrinsicsExtensions
+{
+  [Static][ImageIntrinsicFunction(operands : ImageOperands.None, opName : "OpImageFetch", operandsLocation : 2)]
+  function ImageFetch(image : ref IntImage3d, coordinates : Integer3) : Integer4
+  {
+    return Integer4();
+  }
+
+  [Static][ImageIntrinsicFunction(operands : ImageOperands.None, opName : "OpImageFetch", operandsLocation : 2)]
+  function ImageFetch(sampledImage : ref IntSampledImage3d, coordinates : Integer3) : Integer4
+  {
+    return Integer4();
+  }
+}
+
+[UnitTest][Pixel]
+struct IntImage3dFetchIntrinsic
+{
+  var Image : IntImage3d;
+  var SampledImage : IntSampledImage3d;
+
+  [EntryPoint]
+  function Main()
+  {
+    var i3 = Integer3();
+    var i4 = ShaderIntrinsicsExtensions.ImageFetch(&this.Image, i3);
+    i4 = ShaderIntrinsicsExtensions.ImageFetch(&this.SampledImage, i3);
+  }
+}

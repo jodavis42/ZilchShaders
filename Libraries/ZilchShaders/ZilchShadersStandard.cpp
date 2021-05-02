@@ -8,6 +8,10 @@
 
 #include "ShaderErrors.hpp"
 #include "ZilchShaders/Enums/ImageEnums.hpp"
+#include "ZilchShaders/AttributeResolvers/ImageIntrinsicFunctionResolver.hpp"
+#include "ZilchShaders/AttributeResolvers/SampledImageIntrinsicFunctionResolver.hpp"
+#include "ZilchShaders/AttributeResolvers/SimpleExtensionIntrinsicFunctionResolver.hpp"
+#include "ZilchShaders/AttributeResolvers/SimpleIntrinsicFunctionResolver.hpp"
 
 namespace Zilch
 {
@@ -114,6 +118,10 @@ ZilchDefineStaticLibrary(ShaderIntrinsicsLibrary)
   ZilchInitializeType(GeometryStreamUserData);
   ZilchInitializeType(GeometryFragmentUserData);
   ZilchInitializeType(ComputeFragmentUserData);
+  ZilchInitializeType(Zero::ImageIntrinsicFunctionAttribute);
+  ZilchInitializeType(Zero::SampledImageIntrinsicFunctionAttribute);
+  ZilchInitializeType(Zero::SimpleIntrinsicFunctionAttribute);
+  ZilchInitializeType(Zero::SimpleExtensionIntrinsicFunctionAttribute);
 
   ZilchInitializeExternalTypeAs(Zero::ImageDimension::Enum, "ImageDimension");
   ZilchInitializeExternalTypeAs(Zero::ImageDepthMode::Enum, "ImageDepthMode");

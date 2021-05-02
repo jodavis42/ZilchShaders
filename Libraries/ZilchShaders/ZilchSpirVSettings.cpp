@@ -88,6 +88,13 @@ SpirVNameSettings::SpirVNameSettings()
   mFragmentSharedAttribute = "FragmentShared";
 
   mIntrinsicAttribute = "Intrinsic";
+  mSamplerPrimitiveAttribute = "SamplerPrimitive";
+  mImagePrimitiveAttribute = "ImagePrimitive";
+  mSampledImagePrimitiveAttribute = "SampledImagePrimitive";
+  mImageIntrinsicFunctionAttribute = "ImageIntrinsicFunction";
+  mSampledImageIntrinsicFunctionAttribute = "SampledImageIntrinsicFunction";
+  mSimpleIntrinsicFunctionAttribute = "SimpleIntrinsicFunction";
+  mSimpleExtensionIntrinsicFunctionAttribute = "SimpleExtensionIntrinsicFunction";
 
   // Create the implied sub-attributes for [Input]
   mInputSubAttributes.PushBack(mFragmentInputAttribute);

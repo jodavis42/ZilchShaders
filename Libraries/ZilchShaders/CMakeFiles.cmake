@@ -7,8 +7,26 @@
 
 target_sources(ZilchShaders
   PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/AttributeParsingUtilities.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/AttributeParsingUtilities.hpp
     ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/IAttributeResolver.hpp
     ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/AttributeResolverSortData.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/ImagePrimitiveResolver.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/ImagePrimitiveResolver.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/SampledImagePrimitiveResolver.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/SampledImagePrimitiveResolver.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/SamplerPrimitiveResolver.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/SamplerPrimitiveResolver.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/ImageIntrinsicFunctionData.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/ImageIntrinsicFunctionData.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/ImageIntrinsicFunctionResolver.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/ImageIntrinsicFunctionResolver.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/SampledImageIntrinsicFunctionResolver.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/SampledImageIntrinsicFunctionResolver.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/SimpleExtensionIntrinsicFunctionResolver.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/SimpleExtensionIntrinsicFunctionResolver.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/SimpleIntrinsicFunctionResolver.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/SimpleIntrinsicFunctionResolver.hpp
     ${CMAKE_CURRENT_LIST_DIR}/Enums/ImageEnums.hpp
     ${CMAKE_CURRENT_LIST_DIR}/SpirVUtils/SpirVDefinitions.cpp
     ${CMAKE_CURRENT_LIST_DIR}/SpirVUtils/SpirVDefinitions.hpp

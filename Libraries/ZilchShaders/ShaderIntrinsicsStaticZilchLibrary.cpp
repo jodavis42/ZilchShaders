@@ -9,6 +9,13 @@
 #include "ZilchShaderIRCore.hpp"
 #include "ShaderIRLibraryTranslation.hpp"
 #include "ZilchShadersStandard.hpp"
+#include "AttributeResolvers/SamplerPrimitiveResolver.hpp"
+#include "AttributeResolvers/ImagePrimitiveResolver.hpp"
+#include "AttributeResolvers/SampledImagePrimitiveResolver.hpp"
+#include "AttributeResolvers/ImageIntrinsicFunctionResolver.hpp"
+#include "AttributeResolvers/SampledImageIntrinsicFunctionResolver.hpp"
+#include "AttributeResolvers/SimpleIntrinsicFunctionResolver.hpp"
+#include "AttributeResolvers/SimpleExtensionIntrinsicFunctionResolver.hpp"
 
 namespace Zero
 {
@@ -93,6 +100,15 @@ void ShaderIntrinsicsStaticZilchLibrary::Parse(ZilchSpirVFrontEnd* translator)
   shaderLibrary->RegisterTemplateResolver("LineOutput[Type]", GeometryStreamOutputResolver);
   shaderLibrary->RegisterTemplateResolver("TriangleOutput[Type]", GeometryStreamOutputResolver);
   shaderLibrary->mTranslated = true;
+  
+  SpirVNameSettings& nameSettings = translator->mSettings->mNameSettings;
+  shaderLibrary->RegisterIntrinsicAttributeResolver(nameSettings.mSamplerPrimitiveAttribute, new SamplerPrimitiveResolver());
+  shaderLibrary->RegisterIntrinsicAttributeResolver(nameSettings.mImagePrimitiveAttribute, new ImagePrimitiveResolver());
+  shaderLibrary->RegisterIntrinsicAttributeResolver(nameSettings.mSampledImagePrimitiveAttribute, new SampledImagePrimitiveResolver());
+  shaderLibrary->RegisterIntrinsicAttributeResolver(nameSettings.mImageIntrinsicFunctionAttribute, new ImageIntrinsicFunctionResolver());
+  shaderLibrary->RegisterIntrinsicAttributeResolver(nameSettings.mSampledImageIntrinsicFunctionAttribute, new SampledImageIntrinsicFunctionResolver());
+  shaderLibrary->RegisterIntrinsicAttributeResolver(nameSettings.mSimpleIntrinsicFunctionAttribute, new SimpleIntrinsicFunctionResolver());
+  shaderLibrary->RegisterIntrinsicAttributeResolver(nameSettings.mSimpleExtensionIntrinsicFunctionAttribute, new SimpleExtensionIntrinsicFunctionResolver());
 
   PopulateStageRequirementsData(shaderLibrary);
 }

@@ -1,0 +1,19 @@
+struct ShaderIntrinsicsExtensions
+{
+  [Static][SimpleIntrinsicFunction(opName : "OpDot")]
+  function Dot(a : Real2, b : Real2) : Real
+  {
+    return 0.0;
+  }
+}
+
+[UnitTest][Pixel]
+struct DotTest
+{
+  [EntryPoint]
+  function Main()
+  {
+    var r2 = Real2();
+    var r = ShaderIntrinsicsExtensions.Dot(r2, r2);
+  }
+}

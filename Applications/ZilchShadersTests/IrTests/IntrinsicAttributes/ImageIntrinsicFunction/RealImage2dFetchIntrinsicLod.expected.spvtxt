@@ -1,0 +1,115 @@
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos; 0
+; Bound: 62
+; Schema: 0
+               OpCapability Shader
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %EntryPoint_Main_RealImage2dFetchIntrinsicLod "EntryPoint_Main_RealImage2dFetchIntrinsicLod" %Image_RealImage2dFetchIntrinsicLod %SampledImage_RealImage2dFetchIntrinsicLod
+               OpExecutionMode %EntryPoint_Main_RealImage2dFetchIntrinsicLod OriginUpperLeft
+               OpSource Unknown 100
+               OpName %RealImage2dFetchIntrinsicLod "RealImage2dFetchIntrinsicLod"
+               OpMemberName %RealImage2dFetchIntrinsicLod 0 "Dummy"
+               OpName %RealImage2d "RealImage2d"
+               OpName %RealSampledImage2d "RealSampledImage2d"
+               OpName %Image_RealImage2dFetchIntrinsicLod "Image_RealImage2dFetchIntrinsicLod"
+               OpName %SampledImage_RealImage2dFetchIntrinsicLod "SampledImage_RealImage2dFetchIntrinsicLod"
+               OpName %Main "Main"
+               OpName %self "self"
+               OpName %i2 "i2"
+               OpName %lod "lod"
+               OpName %r4 "r4"
+               OpName %PreConstructor_RealImage2dFetchIntrinsicLod "PreConstructor_RealImage2dFetchIntrinsicLod"
+               OpName %self_0 "self"
+               OpName %DefaultConstructor "DefaultConstructor"
+               OpName %self_1 "self"
+               OpName %CopyInputs_Main "CopyInputs_Main"
+               OpName %self_2 "self"
+               OpName %CopyOutputs_Main "CopyOutputs_Main"
+               OpName %self_3 "self"
+               OpName %EntryPoint_Main_RealImage2dFetchIntrinsicLod "EntryPoint_Main_RealImage2dFetchIntrinsicLod"
+               OpName %self_4 "self"
+               OpName %InitializeGlobals "InitializeGlobals"
+               OpDecorate %Image_RealImage2dFetchIntrinsicLod Binding 0
+               OpDecorate %Image_RealImage2dFetchIntrinsicLod DescriptorSet 0
+               OpDecorate %SampledImage_RealImage2dFetchIntrinsicLod Binding 1
+               OpDecorate %SampledImage_RealImage2dFetchIntrinsicLod DescriptorSet 0
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+%RealImage2dFetchIntrinsicLod = OpTypeStruct %int
+%_ptr_Function_RealImage2dFetchIntrinsicLod = OpTypePointer Function %RealImage2dFetchIntrinsicLod
+       %void = OpTypeVoid
+%_ptr_Function_void = OpTypePointer Function %void
+          %8 = OpTypeFunction %void %_ptr_Function_RealImage2dFetchIntrinsicLod
+      %v2int = OpTypeVector %int 2
+%_ptr_Function_v2int = OpTypePointer Function %v2int
+      %int_0 = OpConstant %int 0
+      %int_1 = OpConstant %int 1
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+%RealImage2d = OpTypeImage %float 2D 0 0 0 1 Unknown
+%_ptr_UniformConstant_RealImage2d = OpTypePointer UniformConstant %RealImage2d
+%Image_RealImage2dFetchIntrinsicLod = OpVariable %_ptr_UniformConstant_RealImage2d UniformConstant
+    %v4float = OpTypeVector %float 4
+%_ptr_Function_v4float = OpTypePointer Function %v4float
+%RealSampledImage2d = OpTypeSampledImage %RealImage2d
+%_ptr_UniformConstant_RealSampledImage2d = OpTypePointer UniformConstant %RealSampledImage2d
+%SampledImage_RealImage2dFetchIntrinsicLod = OpVariable %_ptr_UniformConstant_RealSampledImage2d UniformConstant
+         %19 = OpTypeFunction %void
+       %Main = OpFunction %void None %8
+       %self = OpFunctionParameter %_ptr_Function_RealImage2dFetchIntrinsicLod
+         %26 = OpLabel
+         %i2 = OpVariable %_ptr_Function_v2int Function
+        %lod = OpVariable %_ptr_Function_int Function
+         %r4 = OpVariable %_ptr_Function_v4float Function
+         %30 = OpCompositeConstruct %v2int %int_0 %int_0
+               OpStore %i2 %30
+               OpStore %lod %int_1
+         %31 = OpLoad %RealImage2d %Image_RealImage2dFetchIntrinsicLod
+         %32 = OpLoad %v2int %i2
+         %33 = OpLoad %int %lod
+         %34 = OpImageFetch %v4float %31 %32 Lod %33
+               OpStore %r4 %34
+         %35 = OpLoad %RealSampledImage2d %SampledImage_RealImage2dFetchIntrinsicLod
+         %36 = OpImage %RealImage2d %35
+         %37 = OpLoad %v2int %i2
+         %38 = OpLoad %int %lod
+         %39 = OpImageFetch %v4float %36 %37 Lod %38
+               OpStore %r4 %39
+               OpReturn
+               OpFunctionEnd
+%PreConstructor_RealImage2dFetchIntrinsicLod = OpFunction %void None %8
+     %self_0 = OpFunctionParameter %_ptr_Function_RealImage2dFetchIntrinsicLod
+         %42 = OpLabel
+               OpReturn
+               OpFunctionEnd
+%DefaultConstructor = OpFunction %void None %8
+     %self_1 = OpFunctionParameter %_ptr_Function_RealImage2dFetchIntrinsicLod
+         %45 = OpLabel
+         %46 = OpFunctionCall %void %PreConstructor_RealImage2dFetchIntrinsicLod %self_1
+               OpReturn
+               OpFunctionEnd
+%CopyInputs_Main = OpFunction %void None %8
+     %self_2 = OpFunctionParameter %_ptr_Function_RealImage2dFetchIntrinsicLod
+         %49 = OpLabel
+               OpReturn
+               OpFunctionEnd
+%CopyOutputs_Main = OpFunction %void None %8
+     %self_3 = OpFunctionParameter %_ptr_Function_RealImage2dFetchIntrinsicLod
+         %52 = OpLabel
+               OpReturn
+               OpFunctionEnd
+%EntryPoint_Main_RealImage2dFetchIntrinsicLod = OpFunction %void None %19
+         %54 = OpLabel
+     %self_4 = OpVariable %_ptr_Function_RealImage2dFetchIntrinsicLod Function
+         %56 = OpFunctionCall %void %InitializeGlobals
+         %57 = OpFunctionCall %void %DefaultConstructor %self_4
+         %58 = OpFunctionCall %void %CopyInputs_Main %self_4
+         %59 = OpFunctionCall %void %Main %self_4
+         %60 = OpFunctionCall %void %CopyOutputs_Main %self_4
+               OpReturn
+               OpFunctionEnd
+%InitializeGlobals = OpFunction %void None %19
+         %61 = OpLabel
+               OpReturn
+               OpFunctionEnd

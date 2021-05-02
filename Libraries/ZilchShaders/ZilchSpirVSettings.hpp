@@ -127,6 +127,14 @@ public:
   String mComputeLocalSizeZParam;
 
   String mIntrinsicAttribute;
+  String mSamplerPrimitiveAttribute;
+  String mImagePrimitiveAttribute;
+  String mSampledImagePrimitiveAttribute;
+  String mImageIntrinsicFunctionAttribute;
+  String mSampledImageIntrinsicFunctionAttribute;
+  String mSimpleIntrinsicFunctionAttribute;
+  String mSimpleExtensionIntrinsicFunctionAttribute;
+
   Array<String> mFragmentTypeAttributes;
   Array<String> mRequiresAttributes;
   

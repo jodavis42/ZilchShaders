@@ -1,0 +1,88 @@
+; SPIR-V
+; Version: 1.4
+; Generator: Khronos; 0
+; Bound: 46
+; Schema: 0
+               OpCapability Shader
+          %2 = OpExtInstImport "GLSL.std.450"
+               OpMemoryModel Logical GLSL450
+               OpEntryPoint Fragment %EntryPoint_Main_FabsTest "EntryPoint_Main_FabsTest"
+               OpExecutionMode %EntryPoint_Main_FabsTest OriginUpperLeft
+               OpSource Unknown 100
+               OpName %FabsTest "FabsTest"
+               OpMemberName %FabsTest 0 "Dummy"
+               OpName %Main "Main"
+               OpName %self "self"
+               OpName %r2 "r2"
+               OpName %r "r"
+               OpName %PreConstructor_FabsTest "PreConstructor_FabsTest"
+               OpName %self_0 "self"
+               OpName %DefaultConstructor "DefaultConstructor"
+               OpName %self_1 "self"
+               OpName %CopyInputs_Main "CopyInputs_Main"
+               OpName %self_2 "self"
+               OpName %CopyOutputs_Main "CopyOutputs_Main"
+               OpName %self_3 "self"
+               OpName %EntryPoint_Main_FabsTest "EntryPoint_Main_FabsTest"
+               OpName %self_4 "self"
+               OpName %InitializeGlobals "InitializeGlobals"
+        %int = OpTypeInt 32 1
+%_ptr_Function_int = OpTypePointer Function %int
+   %FabsTest = OpTypeStruct %int
+%_ptr_Function_FabsTest = OpTypePointer Function %FabsTest
+       %void = OpTypeVoid
+%_ptr_Function_void = OpTypePointer Function %void
+          %9 = OpTypeFunction %void %_ptr_Function_FabsTest
+      %float = OpTypeFloat 32
+%_ptr_Function_float = OpTypePointer Function %float
+    %v2float = OpTypeVector %float 2
+%_ptr_Function_v2float = OpTypePointer Function %v2float
+    %float_0 = OpConstant %float 0
+         %14 = OpTypeFunction %void
+       %Main = OpFunction %void None %9
+       %self = OpFunctionParameter %_ptr_Function_FabsTest
+         %18 = OpLabel
+         %r2 = OpVariable %_ptr_Function_v2float Function
+          %r = OpVariable %_ptr_Function_v2float Function
+         %21 = OpCompositeConstruct %v2float %float_0 %float_0
+               OpStore %r2 %21
+         %22 = OpLoad %v2float %r2
+         %23 = OpExtInst %v2float %2 FAbs %22
+               OpStore %r %23
+               OpReturn
+               OpFunctionEnd
+%PreConstructor_FabsTest = OpFunction %void None %9
+     %self_0 = OpFunctionParameter %_ptr_Function_FabsTest
+         %26 = OpLabel
+               OpReturn
+               OpFunctionEnd
+%DefaultConstructor = OpFunction %void None %9
+     %self_1 = OpFunctionParameter %_ptr_Function_FabsTest
+         %29 = OpLabel
+         %30 = OpFunctionCall %void %PreConstructor_FabsTest %self_1
+               OpReturn
+               OpFunctionEnd
+%CopyInputs_Main = OpFunction %void None %9
+     %self_2 = OpFunctionParameter %_ptr_Function_FabsTest
+         %33 = OpLabel
+               OpReturn
+               OpFunctionEnd
+%CopyOutputs_Main = OpFunction %void None %9
+     %self_3 = OpFunctionParameter %_ptr_Function_FabsTest
+         %36 = OpLabel
+               OpReturn
+               OpFunctionEnd
+%EntryPoint_Main_FabsTest = OpFunction %void None %14
+         %38 = OpLabel
+     %self_4 = OpVariable %_ptr_Function_FabsTest Function
+         %40 = OpFunctionCall %void %InitializeGlobals
+         %41 = OpFunctionCall %void %DefaultConstructor %self_4
+         %42 = OpFunctionCall %void %CopyInputs_Main %self_4
+         %43 = OpFunctionCall %void %Main %self_4
+         %44 = OpFunctionCall %void %CopyOutputs_Main %self_4
+               OpReturn
+               OpFunctionEnd
+%InitializeGlobals = OpFunction %void None %14
+         %45 = OpLabel
+               OpReturn
+               OpFunctionEnd

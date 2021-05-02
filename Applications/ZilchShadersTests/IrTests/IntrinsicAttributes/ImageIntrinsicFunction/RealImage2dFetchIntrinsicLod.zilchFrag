@@ -1,0 +1,40 @@
+[ImagePrimitive(sampledType : typeid(Real), dimension : ImageDimension.Dim2D, imageFormat : ImageFormat.Unknown)]
+struct RealImage2d
+{
+}
+
+[SampledImagePrimitive(imageType : typeid(RealImage2d))]
+struct RealSampledImage2d
+{
+}
+
+struct ShaderIntrinsicsExtensions
+{
+  [Static][ImageIntrinsicFunction(opName : "OpImageFetch", operands : ImageOperands.Lod, operandsLocation : 2)]
+  function ImageFetchLod(image : ref RealImage2d, coordinates : Integer2, lod : Integer) : Real4
+  {
+    return Real4();
+  }
+
+  [Static][ImageIntrinsicFunction(opName : "OpImageFetch", operands : ImageOperands.Lod, operandsLocation : 2)]
+  function ImageFetchLod(sampledImage : ref RealSampledImage2d, coordinates : Integer2, lod : Integer) : Real4
+  {
+    return Real4();
+  }
+}
+
+[UnitTest][Pixel]
+struct RealImage2dFetchIntrinsicLod
+{
+  var Image : RealImage2d;
+  var SampledImage : RealSampledImage2d;
+
+  [EntryPoint]
+  function Main()
+  {
+    var i2 = Integer2();
+    var lod = 1;
+    var r4 = ShaderIntrinsicsExtensions.ImageFetchLod(&this.Image, i2, lod);
+    r4 = ShaderIntrinsicsExtensions.ImageFetchLod(&this.SampledImage, i2, lod);
+  }
+}
