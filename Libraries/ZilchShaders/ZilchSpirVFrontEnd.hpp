@@ -6,6 +6,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "ZIlchShaders/AttributeResolvers/AttributeResolverSortData.hpp"
+
 namespace Zero
 {
 
@@ -61,6 +63,13 @@ public:
   Array<PostableCopy> mFunctionPostambleCopies;
 };
 
+//-------------------------------------------------------------------ZilchSpirVPrimitiveCollectorContext
+class ZilchSpirVPrimitiveCollectorContext
+  : public Zilch::WalkerContext<ZilchSpirVFrontEnd, ZilchSpirVPrimitiveCollectorContext>
+{
+public:
+  Array<AttributeResolverSortData> mAttributeResolvers;
+};
 
 //-------------------------------------------------------------------ZilchSpirVFrontEnd
 class ZilchSpirVFrontEnd : public BaseShaderIRTranslator
@@ -120,9 +129,13 @@ public:
   void GenerateFunctionType(Zilch::SyntaxNode* locationNode, ZilchShaderIRFunction* function, Zilch::BoundType* zilchReturnType, Array<Zilch::Type*>& signature, ZilchSpirVFrontEndContext* context);
   ZilchShaderIRFunction* GenerateIRFunction(Zilch::SyntaxNode* node, Zilch::NodeList<Zilch::AttributeNode>* nodeAttributeList, ZilchShaderIRType* owningType, Zilch::Function* zilchFunction, StringParam functionName, ZilchSpirVFrontEndContext* context);
   void AddImplements(Zilch::SyntaxNode* node, Zilch::Function* zilchFunction, ZilchShaderIRFunction* shaderFunction, StringParam functionName, ZilchSpirVFrontEndContext* context);
+  bool ProcessIntrinsicAttributes(Zilch::SyntaxNode* node, ZilchShaderIRType* owningType, ShaderIRAttributeList& shaderAttributes);
 
   void CollectClassTypes(Zilch::ClassNode*& node, ZilchSpirVFrontEndContext* context);
   void CollectEnumTypes(Zilch::EnumNode*& node, ZilchSpirVFrontEndContext* context);
+
+  void CollectPrimitiveTypes(Zilch::ClassNode*& node, ZilchSpirVPrimitiveCollectorContext* context);
+  void ResolvePrimitiveTypes(ZilchSpirVPrimitiveCollectorContext* context);
 
   void PreWalkClassNode(Zilch::ClassNode*& node, ZilchSpirVFrontEndContext* context);
   void PreWalkTemplateTypes(ZilchSpirVFrontEndContext* context);

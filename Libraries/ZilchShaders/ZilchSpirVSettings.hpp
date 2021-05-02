@@ -126,6 +126,7 @@ public:
   String mComputeLocalSizeYParam;
   String mComputeLocalSizeZParam;
 
+  String mIntrinsicAttribute;
   Array<String> mFragmentTypeAttributes;
   Array<String> mRequiresAttributes;
   

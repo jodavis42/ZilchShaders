@@ -6,6 +6,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "Precompiled.hpp"
 
+#include "ZilchShaders/AttributeResolvers/IAttributeResolver.hpp"
+
 namespace Zero
 {
 
@@ -222,6 +224,19 @@ bool ZilchSpirVFrontEnd::Translate(Zilch::SyntaxTree& syntaxTree, ZilchShaderIRP
   classTypeCollectorWalker.Register(&ZilchSpirVFrontEnd::CollectClassTypes);
   classTypeCollectorWalker.Register(&ZilchSpirVFrontEnd::CollectEnumTypes);
   classTypeCollectorWalker.Walk(this, syntaxTree.Root, &context);
+  // If this failed somehow then early return
+  if(mErrorTriggered)
+  {
+    mContext = nullptr;
+    return !mErrorTriggered;
+  }
+
+  // Visit all primitive types that were collected earlier and fix their types and hookup any special resolution functions needed.
+  ZilchSpirVPrimitiveCollectorContext primitiveCollectorContext;
+  Zilch::BranchWalker<ZilchSpirVFrontEnd, ZilchSpirVPrimitiveCollectorContext> primitiveTypeCollector;
+  primitiveTypeCollector.Register(&ZilchSpirVFrontEnd::CollectPrimitiveTypes);
+  primitiveTypeCollector.Walk(this, syntaxTree.Root, &primitiveCollectorContext);
+  ResolvePrimitiveTypes(&primitiveCollectorContext);
   // If this failed somehow then early return
   if(mErrorTriggered)
   {
@@ -1167,6 +1182,22 @@ void ZilchSpirVFrontEnd::AddImplements(Zilch::SyntaxNode* node, Zilch::Function*
   SendTranslationError(node->Location, msgBuilder.ToString());
 }
 
+bool ZilchSpirVFrontEnd::ProcessIntrinsicAttributes(Zilch::SyntaxNode* node, ZilchShaderIRType* owningType, ShaderIRAttributeList& shaderAttributes)
+{
+  bool visitedIntrinsic = false;
+  for(size_t i = 0; i < shaderAttributes.Size(); ++i)
+  {
+    ShaderIRAttribute& attribute = *shaderAttributes[i];
+    IAttributeResolver* resolver = mLibrary->FindIntrinsicAttributeResolver(attribute.mAttributeName);
+    if(resolver != nullptr)
+    {
+      resolver->Resolve(this, node, owningType, shaderAttributes, attribute);
+      visitedIntrinsic = true;
+    }
+  }
+  return visitedIntrinsic;
+}
+
 void ZilchSpirVFrontEnd::CollectClassTypes(Zilch::ClassNode*& node, ZilchSpirVFrontEndContext* context)
 {
   // Make class type's errors (only allow structs).
@@ -1241,13 +1272,52 @@ void ZilchSpirVFrontEnd::PreWalkClassNode(Zilch::ClassNode*& node, ZilchSpirVFro
   walker->Walk(this, node->Variables, context);
   walker->Walk(this, node->Constructors, context);
   walker->Walk(this, node->Functions, context);
-  GeneratePreConstructor(node, context);
-  GenerateDefaultConstructor(node, context);
-  GenerateDummyMemberVariable(node, context);
+  
+  // Only generate these implicit items on non primitive types
+  if(!context->mCurrentType->IsIntrinsicType())
+  {
+    GeneratePreConstructor(node, context);
+    GenerateDefaultConstructor(node, context);
+    GenerateDummyMemberVariable(node, context);
+  }
 
   PreWalkErrorCheck(context);
 
   context->mCurrentType = nullptr;
+}
+
+void ZilchSpirVFrontEnd::CollectPrimitiveTypes(Zilch::ClassNode*& node, ZilchSpirVPrimitiveCollectorContext* context)
+{
+  ZilchShaderIRType* shaderType = FindType(node->Type, node);
+  ShaderIRAttributeList& shaderAttributes = shaderType->mMeta->mAttributes;
+
+  // Append all information about primitive type intrinsic attributes to the context so we can visit later
+  for(size_t i = 0; i < shaderAttributes.Size(); ++i)
+  {
+    ShaderIRAttribute& attribute = *shaderAttributes[i];
+    IAttributeResolver* resolver = mLibrary->FindIntrinsicAttributeResolver(attribute.mAttributeName);
+    if(resolver == nullptr)
+      continue;
+
+    AttributeResolverSortData& attributeData = context->mAttributeResolvers.PushBack();
+    attributeData.mAttributeIndex = i;
+    attributeData.mShaderType = shaderType;
+    attributeData.mResolver = resolver;
+    attributeData.mNode = node;
+  }
+}
+
+void ZilchSpirVFrontEnd::ResolvePrimitiveTypes(ZilchSpirVPrimitiveCollectorContext* context)
+{
+  Zero::Sort(context->mAttributeResolvers.All(), AttributeResolverSortData::Sort);
+  for(auto range = context->mAttributeResolvers.All(); !range.Empty(); range.PopFront())
+  {
+    AttributeResolverSortData& attributeData = range.Front();
+    ZilchShaderIRType* shaderType = attributeData.mShaderType;
+    ShaderIRAttributeList& attributes = shaderType->mMeta->mAttributes;
+    ShaderIRAttribute* shaderAttribute = attributes[attributeData.mAttributeIndex];
+    attributeData.mResolver->Resolve(this, attributeData.mNode, shaderType, attributes, *shaderAttribute);
+  }
 }
 
 void ZilchSpirVFrontEnd::PreWalkTemplateTypes(ZilchSpirVFrontEndContext* context)
@@ -1444,6 +1514,11 @@ void ZilchSpirVFrontEnd::PreWalkClassConstructor(Zilch::ConstructorNode*& node, 
 
 void ZilchSpirVFrontEnd::PreWalkClassFunction(Zilch::FunctionNode*& node, ZilchSpirVFrontEndContext* context)
 {
+  ShaderIRAttributeList shaderAttributes;
+  ParseZilchAttributes(node->DefinedFunction->Attributes, &node->Attributes, shaderAttributes);
+  if(ProcessIntrinsicAttributes(node, context->mCurrentType, shaderAttributes))
+    return;
+
   GenerateIRFunction(node, &node->Attributes, context->mCurrentType, node->DefinedFunction, node->Name.Token, context);
 
   // Try and parse the correct "Main" function for the current fragment type
@@ -1735,6 +1810,11 @@ void ZilchSpirVFrontEnd::WalkClassConstructor(Zilch::ConstructorNode*& node, Zil
 
 void ZilchSpirVFrontEnd::WalkClassFunction(Zilch::FunctionNode*& node, ZilchSpirVFrontEndContext* context)
 {
+  // If this function is actually an intrinsic then don't generate a real function or walk the body
+  if(node->DefinedFunction->HasAttribute(mSettings->mNameSettings.mIntrinsicAttribute))
+    return;
+
+  ZilchShaderIRFunction* function = context->mCurrentFunction;
   GenerateFunctionParameters(node, context);
   GenerateFunctionBody(node, context);
 }

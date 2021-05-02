@@ -6,6 +6,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 #include "Precompiled.hpp"
 
+#include "ZilchShaders/AttributeResolvers/IAttributeResolver.hpp"
+
 namespace Zero
 {
 
@@ -387,6 +389,7 @@ ZilchShaderIRLibrary::~ZilchShaderIRLibrary()
   DeleteObjectsIn(mConstantLiterals.Values());
   DeleteObjectsIn(mConstantOps.Values());
   DeleteObjectsIn(mExtensionLibraryImports.Values());
+  DeleteObjectsIn(mIntrinsicAttributeResolvers.Values());
 }
 
 void ZilchShaderIRLibrary::AddType(StringParam typeName, ZilchShaderIRType* shaderType)
@@ -615,6 +618,32 @@ ZilchShaderIRFunction* ZilchShaderIRLibrary::FindFunction(Zilch::Function* zilch
   return mDependencies->FindFunction(zilchFunction, checkDependencies);
 }
 
+SpirVExtensionLibrary* ZilchShaderIRLibrary::FindExtensionLibrary(StringParam libraryName, bool checkDependencies)
+{
+  // Try to find the type in this library
+  SpirVExtensionLibrary* result = nullptr;
+  for(size_t i = 0; i < mExtensionLibraries.Size(); ++i)
+  {
+    if(mExtensionLibraries[i]->mName == libraryName)
+    {
+      result = mExtensionLibraries[i];
+      break;
+    }
+  }
+
+  if(result == nullptr && checkDependencies && mDependencies != nullptr)
+  {
+    for(size_t i = 0; i < mDependencies->Size(); ++i)
+    {
+      ZilchShaderIRLibrary* library = (*mDependencies)[i];
+      result = library->FindExtensionLibrary(libraryName, checkDependencies);
+      if(result != nullptr)
+        break;
+    }
+  }
+  return result;
+}
+
 SpirVExtensionInstruction* ZilchShaderIRLibrary::FindExtensionInstruction(Zilch::Function* zilchFunction, bool checkDependencies)
 {
   SpirVExtensionInstruction* result = mExtensionInstructions.FindValue(zilchFunction, nullptr);
@@ -713,6 +742,28 @@ ZilchShaderIROp* ZilchShaderIRLibrary::FindSpecializationConstantOp(void* key, b
   if(mDependencies == nullptr)
     return nullptr;
   return mDependencies->FindSpecializationConstantOp(key, checkDependencies);
+}
+
+void ZilchShaderIRLibrary::RegisterIntrinsicAttributeResolver(StringParam attributeName, IAttributeResolver* resolverFn)
+{
+  mIntrinsicAttributeResolvers.InsertOrError(attributeName, resolverFn);
+}
+
+IAttributeResolver* ZilchShaderIRLibrary::FindIntrinsicAttributeResolver(StringParam attributeName, bool checkDependencies)
+{
+  // Try to find the type in this library
+  IAttributeResolver* result = mIntrinsicAttributeResolvers.FindValue(attributeName, nullptr);
+  if(result == nullptr && checkDependencies && mDependencies != nullptr)
+  {
+    for(size_t i = 0; i < mDependencies->Size(); ++i)
+    {
+      ZilchShaderIRLibrary* library = (*mDependencies)[i];
+      result = library->FindIntrinsicAttributeResolver(attributeName, checkDependencies);
+      if(result != nullptr)
+        break;
+    }
+  }
+  return result;
 }
 
 template <typename OpIdType, typename OpResolverType>

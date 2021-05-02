@@ -16,6 +16,7 @@ typedef Zilch::Ref<ZilchShaderIRModule> ZilchShaderIRModuleRef;
 
 class ZilchSpirVFrontEnd;
 class ZilchSpirVFrontEndContext;
+class IAttributeResolver;
 
 typedef Pair<ZilchShaderIRType*, Zilch::Any> ConstantOpKeyType;
 
@@ -238,6 +239,7 @@ public:
   ConstructorCallResolverIRFn FindConstructorResolver(Zilch::Type* zilchType, Zilch::Function* zilchFunction, bool checkDependencies = true);
 
   ZilchShaderIRFunction* FindFunction(Zilch::Function* zilchFunction, bool checkDependencies = true);
+  SpirVExtensionLibrary* FindExtensionLibrary(StringParam libraryName, bool checkDependencies = true);
   SpirVExtensionInstruction* FindExtensionInstruction(Zilch::Function* zilchFunction, bool checkDependencies = true);
   ZilchShaderExtensionImport* FindExtensionLibraryImport(SpirVExtensionLibrary* extensionLibrary, bool checkDependencies = true);
 
@@ -248,6 +250,9 @@ public:
   /// Finds a specialization constant given a key. The key is normally a zilch
   /// field, but can also be special global keys (like languageId).
   ZilchShaderIROp* FindSpecializationConstantOp(void* key, bool checkDependencies = true);
+
+  void RegisterIntrinsicAttributeResolver(StringParam attributeName, IAttributeResolver* resolverFn);
+  IAttributeResolver* FindIntrinsicAttributeResolver(StringParam attributeName, bool checkDependencies = true);
 
   Zilch::LibraryRef mZilchLibrary;
   ZilchShaderIRModuleRef mDependencies;
@@ -296,6 +301,7 @@ public:
   HashMap<Zilch::Function*, SpirVExtensionInstruction*> mExtensionInstructions;
   HashMap<SpirVExtensionLibrary*, ZilchShaderExtensionImport*> mExtensionLibraryImports;
   HashMap<TemplateTypeKey, TemplateTypeIRResloverFn> mTemplateResolvers;
+  HashMap<String, IAttributeResolver*> mIntrinsicAttributeResolvers;
 
   /// Stores cached information about symbols in this library that have
   /// certain stage requirements. Used to detect and emit errors.

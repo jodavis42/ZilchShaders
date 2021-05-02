@@ -7,6 +7,8 @@
 
 target_sources(ZilchShaders
   PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/IAttributeResolver.hpp
+    ${CMAKE_CURRENT_LIST_DIR}/AttributeResolvers/AttributeResolverSortData.hpp
     ${CMAKE_CURRENT_LIST_DIR}/Enums/ImageEnums.hpp
     ${CMAKE_CURRENT_LIST_DIR}/SpirVUtils/SpirVDefinitions.cpp
     ${CMAKE_CURRENT_LIST_DIR}/SpirVUtils/SpirVDefinitions.hpp
