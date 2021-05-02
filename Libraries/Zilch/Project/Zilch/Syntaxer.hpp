@@ -303,6 +303,10 @@ namespace Zilch
     // Resolve the node type of a member (after a member access operator...)
     void ResolveMember(MemberAccessNode*& node, TypingContext* context);
 
+    void ResolveClassAttributes(ClassNode*& node, TypingContext* context);
+    void ResolveFunctionAttributes(FunctionNode*& node, TypingContext* context);
+    void ResolveAttributes(NodeList<AttributeNode>& nodes, Array<Attribute>& attributes);
+
     void PrecomputeValueNode(ValueNode*& node, TypingContext* context);
     void PrecomputeStringInterpolantNode(StringInterpolantNode*& node, TypingContext* context);
     void PrecomputeFunctionCallNode(FunctionCallNode*& node, TypingContext* context);
@@ -368,6 +372,7 @@ namespace Zilch
     BranchWalker<Syntaxer, TypingContext> TypingWalker;
     BranchWalker<Syntaxer, TypingContext> PrecomputeTypingWalker;
     BranchWalker<Syntaxer, TypingContext> ExpressionWalker;
+    BranchWalker<Syntaxer, TypingContext> AttributeWalker;
 
     // Not copyable
     ZilchNoCopy(Syntaxer);

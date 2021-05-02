@@ -21,7 +21,9 @@ namespace Zilch
       Real,
       DoubleReal,
       Boolean,
-      Type
+      Type,
+      Enumeration,
+      Unknown
     };
     static const cstr Names[] =
     {
