@@ -129,4 +129,9 @@ ShaderIRFunctionMeta* ShaderIRTypeMeta::CreateFunction(ZilchShaderIRLibrary* lib
   return functionMeta;
 }
 
+bool ShaderIRTypeMeta::IsIntrinsic() const
+{
+  return mIsIntrinsicType;
+}
+
 }//namespace Zero

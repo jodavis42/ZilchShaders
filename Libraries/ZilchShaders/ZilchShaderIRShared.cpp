@@ -305,6 +305,16 @@ bool ZilchShaderIRType::IsGlobalType() const
   return false;
 }
 
+bool ZilchShaderIRType::IsIntrinsicType() const
+{
+  return mMeta != nullptr && mMeta->IsIntrinsic();
+}
+
+bool ZilchShaderIRType::IsAggregateType() const
+{
+  return (mBaseType == ShaderIRTypeBaseType::Struct || mBaseType == ShaderIRTypeBaseType::FixedArray || mBaseType == ShaderIRTypeBaseType::RuntimeArray);
+}
+
 ZilchShaderIRType* ZilchShaderIRType::GetValueType()
 {
   if(mBaseType == ShaderIRTypeBaseType::Pointer)

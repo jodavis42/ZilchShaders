@@ -40,6 +40,69 @@ int ZilchShaderToSpirVContext::FindId(IZilchShaderIR* instruction, bool assertOn
   return id;
 }
 
+bool ZilchShaderToSpirVContext::TryDedupePrimitiveType(ZilchShaderIRType* shaderType)
+{
+  // We need some way to uniquely identify a type. The easiest way to do this is to
+  // build up the string name of this type (e.g. Vector Float 3). This could maybe be
+  // some hash or id or something, but this gets complicated so string is easiest for now.
+  StringBuilder builder;
+  BuildTypeIdentifierName(shaderType, builder);
+  String idStr = builder.ToString();
+
+  // If we already contain this type then this type as a duplicate and give it the same id
+  if(mPrimitiveTypeDedupeIdMap.ContainsKey(idStr))
+  {
+    mGeneratedId[shaderType] = mPrimitiveTypeDedupeIdMap.FindValue(idStr, 0);
+    return true;
+  }
+
+  //Otherwise, register this as a potential duplicate for later
+  GenerateId(shaderType);
+  int id = FindId(shaderType);
+  mPrimitiveTypeDedupeIdMap.InsertOrError(idStr, id);
+  return false;
+}
+
+void ZilchShaderToSpirVContext::BuildTypeIdentifierName(IZilchShaderIR* ir, StringBuilder& builder)
+{
+  if(ZilchShaderIRType* shaderType = ir->As<ZilchShaderIRType>())
+  {
+    builder.Append(ShaderIRTypeBaseType::Names[shaderType->mBaseType]);
+    for(size_t i = 0; i < shaderType->mParameters.Size(); ++i)
+    {
+      IZilchShaderIR* parameter = shaderType->mParameters[i];
+      BuildTypeIdentifierName(parameter, builder);
+    }
+
+    if(shaderType->mComponentType != nullptr)
+    {
+      BuildTypeIdentifierName(shaderType->mComponentType, builder);
+      builder.Append(Zero::ToString(shaderType->mComponents));
+    }
+  }
+  else if(ZilchShaderIROp* op = ir->As<ZilchShaderIROp>())
+  {
+    if(op->mOpType == OpType::OpConstant)
+    {
+      for(size_t i = 0; i < op->mArguments.Size(); ++i)
+        BuildTypeIdentifierName(op->mArguments[i], builder);
+    }
+    else if(op->mOpType == OpType::OpConstantTrue)
+      builder.Append("true");
+    else if(op->mOpType == OpType::OpConstantFalse)
+      builder.Append("false");
+    else
+      builder.Append(Zero::ToString((int)op->mOpType));
+  }
+  else if(ZilchShaderIRConstantLiteral* constantLiteral = ir->As<ZilchShaderIRConstantLiteral>())
+  {
+    builder.Append(Zero::ToString(constantLiteral->mValue.Get<int>()));
+  }
+  else
+    builder.Append(ZilchShaderIRBaseType::Names[ir->mIRType]);
+  builder.Append(" ");
+}
+
 //-------------------------------------------------------------------ZilchShaderToSpirVBackend
 ZilchShaderSpirVBinaryBackend::~ZilchShaderSpirVBinaryBackend()
 {
@@ -160,7 +223,7 @@ void ZilchShaderSpirVBinaryBackend::EmitSpirvBinary(TypeDependencyCollector& col
   // Now we have everything we need to reference so generate ids for everything
 
   GenerateListIds(collector.mReferencedImports, context);
-  GenerateListIds(collector.mReferencedTypes, context);
+  GenerateTypeIds(collector.mReferencedTypes, context);
   GenerateListIds(collector.mReferencedConstants, context);
   GenerateListIds(collector.mReferencedGlobals, context);
   GenerateFunctionIds(collector.mReferencedFunctions, context);
@@ -369,6 +432,25 @@ void ZilchShaderSpirVBinaryBackend::GenerateListIds(OrderedHashSet<T>& input, Zi
   for(; !range.Empty(); range.PopFront())
   {
     T& item = range.Front();
+    context->GenerateId(item);
+  }
+}
+
+void ZilchShaderSpirVBinaryBackend::GenerateTypeIds(OrderedHashSet<ZilchShaderIRType*>& types, ZilchShaderToSpirVContext* context)
+{
+  AutoDeclare(range, types.All());
+  for(; !range.Empty(); range.PopFront())
+  {
+    ZilchShaderIRType* item = range.Front();
+    // SpirV only allows one instance of a non aggregate type (non struct or array type),
+    // but for convenience we allow multiple distinct types that share the same underlying
+    // primitive type (e.g. Vector4, Quaternion). To handle this, we dedupe the types to the same underlying id.
+    if(!item->IsAggregateType() && item->IsIntrinsicType())
+    {
+      if(context->TryDedupePrimitiveType(item))
+        continue;
+    }
+
     context->GenerateId(item);
   }
 }
@@ -717,46 +799,52 @@ void ZilchShaderSpirVBinaryBackend::WriteTypesGlobalsAndConstants(IRList& typesG
 
 void ZilchShaderSpirVBinaryBackend::WriteType(ZilchShaderIRType* type, ZilchShaderToSpirVContext* context)
 {
+  // Handle duplicate types being visited (due to deduplicated types)
+  int typeId = context->FindId(type);
+  if(context->mVisitedTypes.Contains(typeId))
+    return;
+  context->mVisitedTypes.Insert(typeId);
+
   ShaderStreamWriter& streamWriter = *context->mStreamWriter;
 
   if(type->mBaseType == ShaderIRTypeBaseType::Void)
-    streamWriter.WriteInstruction(2, OpType::OpTypeVoid, context->FindId(type));
+    streamWriter.WriteInstruction(2, OpType::OpTypeVoid, typeId);
   else if(type->mBaseType == ShaderIRTypeBaseType::Bool)
-    streamWriter.WriteInstruction(2, OpType::OpTypeBool, context->FindId(type));
+    streamWriter.WriteInstruction(2, OpType::OpTypeBool, typeId);
   else if(type->mBaseType == ShaderIRTypeBaseType::Int)
-    streamWriter.WriteInstruction(4, OpType::OpTypeInt, context->FindId(type), 32, 1);
+    streamWriter.WriteInstruction(4, OpType::OpTypeInt, typeId, 32, 1);
   else if(type->mBaseType == ShaderIRTypeBaseType::Uint)
-    streamWriter.WriteInstruction(4, OpType::OpTypeInt, context->FindId(type), 32, 0);
+    streamWriter.WriteInstruction(4, OpType::OpTypeInt, typeId, 32, 0);
   else if(type->mBaseType == ShaderIRTypeBaseType::Float)
-    streamWriter.WriteInstruction(3, OpType::OpTypeFloat, context->FindId(type), 32);
+    streamWriter.WriteInstruction(3, OpType::OpTypeFloat, typeId, 32);
   else if(type->mBaseType == ShaderIRTypeBaseType::Vector)
   {
     ZilchShaderIRType* componentType = GetComponentType(type);
     int componentTypeId = context->FindId(componentType);
-    streamWriter.WriteInstruction(4, OpType::OpTypeVector, context->FindId(type), componentTypeId, type->mComponents);
+    streamWriter.WriteInstruction(4, OpType::OpTypeVector, typeId, componentTypeId, type->mComponents);
   }
   else if(type->mBaseType == ShaderIRTypeBaseType::Matrix)
   {
     ZilchShaderIRType* componentType = GetComponentType(type);
     int componentTypeId = context->FindId(componentType);
-    streamWriter.WriteInstruction(4, OpType::OpTypeMatrix, context->FindId(type), componentTypeId, type->mComponents);
+    streamWriter.WriteInstruction(4, OpType::OpTypeMatrix, typeId, componentTypeId, type->mComponents);
   }
   else if(type->mBaseType == ShaderIRTypeBaseType::FixedArray)
   {
     ZilchShaderIRType* componentType = type->mParameters[0]->As<ZilchShaderIRType>();
     int componentTypeId = context->FindId(componentType);
     int lengthId = context->FindId(type->mParameters[1]);
-    streamWriter.WriteInstruction(4, OpType::OpTypeArray, context->FindId(type), componentTypeId, lengthId);
+    streamWriter.WriteInstruction(4, OpType::OpTypeArray, typeId, componentTypeId, lengthId);
   }
   else if(type->mBaseType == ShaderIRTypeBaseType::RuntimeArray)
   {
     ZilchShaderIRType* componentType = type->mParameters[0]->As<ZilchShaderIRType>();
     int componentTypeId = context->FindId(componentType);
-    streamWriter.WriteInstruction(3, OpType::OpTypeRuntimeArray, context->FindId(type), componentTypeId);
+    streamWriter.WriteInstruction(3, OpType::OpTypeRuntimeArray, typeId, componentTypeId);
   }
   else if(type->mBaseType == ShaderIRTypeBaseType::Struct)
   {
-    streamWriter.WriteInstruction(2 + (int16)type->mParameters.Size(), OpType::OpTypeStruct, context->FindId(type));
+    streamWriter.WriteInstruction(2 + (int16)type->mParameters.Size(), OpType::OpTypeStruct, typeId);
     
     for(size_t i = 0; i < type->mParameters.Size(); ++i)
     {
@@ -766,7 +854,6 @@ void ZilchShaderSpirVBinaryBackend::WriteType(ZilchShaderIRType* type, ZilchShad
   }
   else if(type->mBaseType == ShaderIRTypeBaseType::Function)
   {
-    int typeId = context->FindId(type);
     streamWriter.WriteInstruction(2 + (int16)type->mParameters.Size(), OpType::OpTypeFunction, typeId);
     for(size_t i = 0; i < type->mParameters.Size(); ++i)
     {
@@ -777,22 +864,22 @@ void ZilchShaderSpirVBinaryBackend::WriteType(ZilchShaderIRType* type, ZilchShad
   else if(type->mBaseType == ShaderIRTypeBaseType::Pointer)
   {
     int dereferenceTypeId = context->FindId(type->mDereferenceType);
-    streamWriter.WriteInstruction(4, OpType::OpTypePointer, context->FindId(type), type->mStorageClass, dereferenceTypeId);
+    streamWriter.WriteInstruction(4, OpType::OpTypePointer, typeId, type->mStorageClass, dereferenceTypeId);
   }
   else if(type->mBaseType == ShaderIRTypeBaseType::Image)
   {
     int16 size = 2 + (int16)type->mParameters.Size();
-    streamWriter.WriteInstruction(size, OpType::OpTypeImage, context->FindId(type));
+    streamWriter.WriteInstruction(size, OpType::OpTypeImage, typeId);
     WriteIRArguments(type->mParameters, context);
   }
   else if(type->mBaseType == ShaderIRTypeBaseType::SampledImage)
   {
     int imageTypeId = context->FindId(type->mParameters[0]);
-    streamWriter.WriteInstruction(3, OpType::OpTypeSampledImage, context->FindId(type), imageTypeId);
+    streamWriter.WriteInstruction(3, OpType::OpTypeSampledImage, typeId, imageTypeId);
   }
   else if(type->mBaseType == ShaderIRTypeBaseType::Sampler)
   {
-    streamWriter.WriteInstruction(2, OpType::OpTypeSampler, context->FindId(type));
+    streamWriter.WriteInstruction(2, OpType::OpTypeSampler, typeId);
   }
 }
 

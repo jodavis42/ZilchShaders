@@ -20,6 +20,8 @@ public:
   void GenerateId(IZilchShaderIR* ir);
 
   int FindId(IZilchShaderIR* instruction, bool assertOnZero = true);
+  bool TryDedupePrimitiveType(ZilchShaderIRType* shaderType);
+  void BuildTypeIdentifierName(IZilchShaderIR* ir, StringBuilder& builder);
 
   ShaderStreamWriter* mStreamWriter;
   ShaderStageInterfaceReflection* mReflectionData;
@@ -27,6 +29,8 @@ public:
   // Id mapping of an instruction
   int mId;
   HashMap<IZilchShaderIR*, int> mGeneratedId;
+  HashSet<int> mVisitedTypes;
+  HashMap<String, int> mPrimitiveTypeDedupeIdMap;
   Array<EntryPointInfo*> mEntryPoints;
   ZilchShaderIRFunction* mMain;
 };
@@ -70,6 +74,7 @@ private:
 
   template <typename T>
   void GenerateListIds(OrderedHashSet<T>& input, ZilchShaderToSpirVContext* context);
+  void GenerateTypeIds(OrderedHashSet<ZilchShaderIRType*>& types, ZilchShaderToSpirVContext* context);
   void GenerateFunctionIds(FunctionList& functions, ZilchShaderToSpirVContext* context);
   void GenerateFunctionBlockIds(ZilchShaderIRFunction* function, ZilchShaderToSpirVContext* context);
   void GenerateBlockLineIds(BasicBlock* block, ZilchShaderToSpirVContext* context);

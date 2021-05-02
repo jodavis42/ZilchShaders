@@ -104,6 +104,11 @@ public:
   /// Internal function used by shader translation to create a function meta object.
   ShaderIRFunctionMeta* CreateFunction(ZilchShaderIRLibrary* library);
 
+  /// Was this type an intrinsic type declared by the user? Intrinsic types might be
+  /// declares as a struct in the shader, but map to an underlying spirv type
+  /// so they are declared fundamentally different.
+  bool IsIntrinsic() const;
+
   /// The name of the zilch type.
   String mZilchName;
   /// The zilch type this comes from. Useful for more complicated reflection.
@@ -121,6 +126,8 @@ public:
   /// Data can be written to the buffer and will be properly destructed
   /// when this object is destroyed (must be read in the order it's written)
   mutable Zilch::DestructibleBuffer mComplexUserData;
+
+  bool mIsIntrinsicType = false;
 };
 
 }//namespace Zero
