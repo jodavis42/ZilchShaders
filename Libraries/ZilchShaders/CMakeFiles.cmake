@@ -7,6 +7,8 @@
 
 target_sources(ZilchShaders
   PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/SpirVUtils/SpirVDefinitions.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/SpirVUtils/SpirVDefinitions.hpp
     ${CMAKE_CURRENT_LIST_DIR}/ArithmeticInstructions.cpp
     ${CMAKE_CURRENT_LIST_DIR}/BitInstructions.cpp
     ${CMAKE_CURRENT_LIST_DIR}/CommonInstructions.cpp

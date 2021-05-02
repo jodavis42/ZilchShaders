@@ -6,6 +6,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "ZilchShaders/SpirVUtils/SpirVDefinitions.hpp"
+
 namespace Zero
 {
 
@@ -383,7 +385,8 @@ public:
   Zilch::BoundType* mRenderTargetType;
 
   CallbackSettings mCallbackSettings;
-  ZilchShaderErrorSettings mErrorSettings;
+  ZilchShaderErrorSettings mErrorSettings; 
+  SpirVDefinitions mSpirVDefinitions;
 
 private:
   /// Validates that uniform descriptions don't have any

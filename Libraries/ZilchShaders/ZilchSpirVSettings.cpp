@@ -377,6 +377,7 @@ ZilchShaderSpirVSettings::ZilchShaderSpirVSettings()
   mAllowUniformMaterialBufferIndexOverap = false;
   InitializeBuiltIns();
   mRenderTargetType = ZilchTypeId(Zilch::Real4);
+  mSpirVDefinitions.LoadSimplifiedDefaults();
 }
 
 ZilchShaderSpirVSettings::ZilchShaderSpirVSettings(const SpirVNameSettings& nameSettings) : mNameSettings(nameSettings)
@@ -385,6 +386,7 @@ ZilchShaderSpirVSettings::ZilchShaderSpirVSettings(const SpirVNameSettings& name
   mAllowUniformMaterialBufferIndexOverap = false;
   InitializeBuiltIns();
   mRenderTargetType = ZilchTypeId(Zilch::Real4);
+  mSpirVDefinitions.LoadSimplifiedDefaults();
 }
 
 void ZilchShaderSpirVSettings::AddUniformBufferDescription(UniformBufferDescription& description)
